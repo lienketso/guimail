@@ -1,0 +1,99 @@
+.jstree{
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.jstree-default .jstree-container-ul{
+    padding: 10px 15px;
+}
+.jstree-default .jstree-container-ul .jstree-node{
+    padding-left: 20px;
+}
+body { padding-top: 70px; background: #f8fafc; }
+.navbar {
+    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.navbar-brand, .navbar-nav .nav-link, .navbar-text {
+    color: #fff !important;
+    font-weight: 500;
+}
+.navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+    color: #ffe082 !important;
+    background: rgba(255,255,255,0.08);
+    border-radius: 5px;
+}
+.container {
+    max-width: 1100px;
+}
+.card {
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.table thead {
+    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+    color: #fff;
+}
+.btn-primary, .btn-success, .btn-warning, .btn-danger {
+    border-radius: 2rem;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+.btn-primary {
+    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+    border: none;
+}
+.btn-success {
+    background: linear-gradient(90deg, #00c851 0%, #33b5e5 100%);
+    border: none;
+}
+.btn-warning {
+    background: linear-gradient(90deg, #ffbb33 0%, #ff8800 100%);
+    border: none;
+}
+.btn-danger {
+    background: linear-gradient(90deg, #ff4444 0%, #cc0000 100%);
+    border: none;
+}
+.form-label {
+    font-weight: 500;
+    color: #6610f2;
+}
+.alert-success, .alert-danger {
+    border-radius: 1rem;
+    font-size: 1.1rem;
+}
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+    background-color: #f3f0ff;
+}
+.badge-admin {
+    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+    color: #fff;
+}
+.badge-user {
+    background: linear-gradient(90deg, #00c851 0%, #33b5e5 100%);
+    color: #fff;
+}
+.title-main {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6610f2;
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.5px;
+    padding-bottom: 0.3rem;
+}
+.title-main::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+    border-radius: 2px;
+    margin-top: 7px;
+}
+.button-folder button{
+    font-size: 14px;
+}
