@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/companies/{id}/edit', [CompanyController::class, 'edit'])->name('companies.edit');
     Route::put('/companies/{id}', [CompanyController::class, 'update'])->name('companies.update');
     Route::delete('/companies/{id}', [CompanyController::class, 'destroy'])->name('companies.destroy');
+    Route::post('/companies/import', [CompanyController::class, 'import'])->name('companies.import');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
  
@@ -51,4 +52,5 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
   
+    Route::get('/folders/download/{id}', [FolderController::class, 'download'])->name('folders.download');
 });

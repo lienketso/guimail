@@ -6,7 +6,13 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
     @if(Auth::user()->role === 'admin')
-        <a href="{{ route('companies.create') }}" class="btn btn-primary mb-3">Thêm công ty</a>
+        <a href="{{ route('companies.create') }}" class="btn btn-primary mb-3">+ Thêm công ty mới</a>
+        <form action="{{ route('companies.import') }}" method="POST" enctype="multipart/form-data" class="mb-3 frm-import-company">
+            @csrf
+            <input type="file" name="file" accept=".xlsx,.xls" required>
+            <button type="submit" class="btn btn-success">Import công ty (xlsx, xls)</button>
+            <a class="download-template-file" href="{{ asset('images/import-comany.xlsx') }}" target="_blank">File import mẫu</a>
+        </form>
     @endif
     <table class="table table-bordered">
         <thead>
@@ -41,4 +47,7 @@
             @endforeach
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        {{ $companies->links() }}
+    </div>
 @endsection 

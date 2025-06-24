@@ -97,3 +97,30 @@ body { padding-top: 70px; background: #f8fafc; }
 .button-folder button{
     font-size: 14px;
 }
+.download-template-file{
+    padding-left: 20px;
+    color: #000;
+}
+.download-template-file:hover{
+    color: #5e0404;
+}
+.frm-import-company input[type="file"]{
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 5px;
+    margin-right: 10px;
+}
+.frm-import-company button{
+    border-radius: 5px;
+}
+.btn:hover,
+a.btn:hover {
+    filter: brightness(90%);
+    transition: filter 0.2s ease-in-out;
+}
+.company-info{
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}

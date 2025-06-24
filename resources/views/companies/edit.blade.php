@@ -23,10 +23,10 @@
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Địa chỉ</label>
-            <input type="text" class="form-control" id="address" name="address" value="{{ $company->address }}" required>   
+            <input type="text" class="form-control" id="address" name="address" value="{{ $company->address }}" required>
         </div>
         <div class="mb-3">
-            <label for="ceo_name" class="form-label">Tên giám đốc</label>
+            <label for="ceo_name" class="form-label">Người đại diện</label>
             <input type="text" class="form-control" id="ceo_name" name="ceo_name" value="{{ $company->ceo_name }}" required>
         </div>
         <div class="mb-3">
@@ -40,4 +40,4 @@
         <button type="submit" class="btn btn-success">Cập nhật</button>
         <a href="{{ route('companies.index') }}" class="btn btn-secondary">Quay lại</a>
     </form>
-@endsection 
+@endsection

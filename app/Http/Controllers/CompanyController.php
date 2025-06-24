@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
     public function index()
     {
-        $companies = Company::all();
+        $companies = Company::paginate(20);
         return view('companies.index', compact('companies'));
     }
 
@@ -79,6 +81,63 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
         $company->delete();
         return redirect()->route('companies.index')->with('success', 'Đã xóa công ty!');
+    }
+
+    public function import(Request $request)
+    {
+        $this->authorizeAdmin();
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+        $data = Excel::toArray([], $file);
+        $rows = $data[0];
+        $errors = [];
+        foreach ($rows as $index => $row) {
+            // Bỏ qua dòng tiêu đề nếu có
+            if ($index === 0 && ($row[0] == 'Mã số thuế' || $row[1] == 'Tên công ty')) {
+                continue;
+            }
+            $validator = Validator::make([
+                'name' => $row[0] ?? null,
+                'tax_code' => $row[1] ?? null,
+                'founded_year' => $row[2] ?? null,
+            ], [
+                'name' => 'required',
+                'tax_code' => 'required',
+                'founded_year' => 'required',
+            ]);
+            if ($validator->fails()) {
+                $errors[] = "Dòng " . ($index + 1) . ": " . implode(', ', $validator->errors()->all());
+                continue;
+            }
+            $company = Company::updateOrCreate(
+                ['tax_code' => $row[0]],
+                [
+                    'name' => $row[1],
+                    'founded_year' => $row[2],
+                    'address' => $row[3],
+                    'phone' => $row[4],
+                    'ceo_name' => $row[5]
+                ]
+            );
+            // Tạo folder cho từng năm từ founded_year đến năm hiện tại
+            $start = (int)$company->founded_year;
+            $end = (int)date('Y');
+            for ($year = $start; $year <= $end; $year++) {
+                \App\Models\Folder::firstOrCreate([
+                    'name' => (string)$year,
+                    'parent_id' => null,
+                    'company_id' => $company->id,
+                ]);
+            }
+        }
+
+        if (count($errors)) {
+            return redirect()->back()->with('success', 'Import hoàn thành với một số lỗi: ' . implode('; ', $errors));
+        }
+        return redirect()->back()->with('success', 'Import thành công!');
     }
 
     private function authorizeAdmin()

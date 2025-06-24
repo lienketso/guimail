@@ -6,6 +6,8 @@ use App\Models\Company;
 use App\Models\Folder;
 use App\Models\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FolderController extends Controller
 {
@@ -21,21 +23,35 @@ class FolderController extends Controller
     {
         $tax_code = $request->input('tax_code');
         $company = Company::where('tax_code', $tax_code)->firstOrFail();
+        
         $folders = Folder::where('company_id', $company->id)
             ->orderBy('parent_id')
             ->orderBy('sort_order')
             ->get();
 
-        // Chuyển dữ liệu sang dạng jsTree cần
-        $data = $folders->map(function($folder) {
+        $folderData = $folders->map(function($folder) {
             return [
-                'id' => $folder->id,
-                'parent' => $folder->parent_id ? $folder->parent_id : '#',
+                'id' => 'folder_' . $folder->id,
+                'parent' => $folder->parent_id ? 'folder_' . $folder->parent_id : '#',
                 'text' => $folder->name,
-                'company_id' => $folder->conpany_id,
+                'type' => 'folder'
             ];
         });
 
+        $folderIds = $folders->pluck('id');
+        $files = File::whereIn('folder_id', $folderIds)->get();
+
+        $fileData = $files->map(function($file) {
+            return [
+                'id' => 'file_' . $file->id,
+                'parent' => 'folder_' . $file->folder_id,
+                'text' => $file->name,
+                'type' => 'file',
+                'a_attr' => ['href' => route('folders.download', $file->id)]
+            ];
+        });
+
+        $data = $folderData->concat($fileData);
         return response()->json($data);
     }
 
@@ -49,19 +65,33 @@ class FolderController extends Controller
         $request->validate([
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
-            'parent_id' => 'nullable|exists:folders,id',
+            'parent_id' => 'nullable|string', // Sẽ có dạng 'folder_xx' hoặc '#'
         ]);
+        
+        $parentId = $request->parent_id;
+        if ($parentId && $parentId !== '#') {
+            $parentId = str_replace('folder_', '', $parentId);
+        } else {
+            $parentId = null;
+        }
+
         $company_id = $request->company_id;
-        $maxOrder = Folder::where('parent_id', $request->parent_id)
+        $maxOrder = Folder::where('parent_id', $parentId)
             ->where('company_id', $company_id)
             ->max('sort_order');
+
         $folder = Folder::create([
             'name' => $request->name,
-            'parent_id' => $request->parent_id,
+            'parent_id' => $parentId,
             'company_id' => $company_id,
             'sort_order' => is_null($maxOrder) ? 0 : $maxOrder + 1
         ]);
-        return response()->json($folder);
+        return response()->json([
+            'id' => 'folder_' . $folder->id,
+            'parent' => $folder->parent_id ? 'folder_' . $folder->parent_id : '#',
+            'text' => $folder->name,
+            'type' => 'folder'
+        ]);
     }
 
     // Upload file vào thư mục
@@ -72,17 +102,33 @@ class FolderController extends Controller
             // User thường chỉ được thêm
         }
         $request->validate([
-            'folder_id' => 'required|exists:folders,id',
+            'folder_id' => 'required|string',
             'file' => 'required|file',
         ]);
+
+        $folderId = str_replace('folder_', '', $request->folder_id);
+        
         $file = $request->file('file');
-        $path = $file->store('uploads/' . date('Y') . '/' . date('m'), 'public');
+        $originalName = $file->getClientOriginalName();
+        $filename = pathinfo($originalName, PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $safeFilename = Str::slug($filename) . '.' . $extension;
+
+        $path = $file->storeAs('uploads/' . date('Y') . '/' . date('m'), $safeFilename, 'public');
+        
         $fileModel = File::create([
-            'name' => $file->getClientOriginalName(),
-            'folder_id' => $request->folder_id,
+            'name' => $originalName,
+            'folder_id' => $folderId,
             'path' => $path,
         ]);
-        return response()->json($fileModel);
+        
+        return response()->json([
+            'id' => 'file_' . $fileModel->id,
+            'parent' => 'folder_' . $fileModel->folder_id,
+            'text' => $fileModel->name,
+            'type' => 'file',
+            'a_attr' => ['href' => Storage::url($fileModel->path), 'target' => '_blank']
+        ]);
     }
 
     // Di chuyển thư mục (drag & drop)
@@ -92,38 +138,69 @@ class FolderController extends Controller
         if ($user->role === 'user') {
             return response()->json(['error' => 'Không có quyền'], 403);
         }
-        $request->validate([
-            'id' => 'required|exists:folders,id',
-            'parent_id' => 'nullable|exists:folders,id',
-            'order' => 'array'
-        ]);
-        $folder = Folder::findOrFail($request->id);
-        $folder->parent_id = $request->parent_id;
+
+        $nodeId = str_replace('folder_', '', $request->id);
+        $parentId = $request->parent_id;
+        if ($parentId && $parentId !== '#') {
+            $parentId = str_replace('folder_', '', $parentId);
+        } else {
+            $parentId = null;
+        }
+
+        $folder = Folder::findOrFail($nodeId);
+        $folder->parent_id = $parentId;
         $folder->save();
 
         // Cập nhật sort_order cho các node cùng cấp
         if ($request->has('order')) {
-            foreach ($request->order as $index => $folderId) {
+            foreach ($request->order as $index => $folderIdWithPrefix) {
+                $folderId = str_replace('folder_', '', $folderIdWithPrefix);
                 Folder::where('id', $folderId)->update(['sort_order' => $index]);
             }
         }
 
-        return response()->json($folder);
+        return response()->json(['success' => true]);
     }
 
-    // Xóa folder
+    // Xóa folder hoặc file
     public function destroy($id)
     {
         $user = Auth::user();
         if ($user->role === 'user') {
             return response()->json(['error' => 'Không có quyền'], 403);
         }
-        $folder = Folder::findOrFail($id);
-        $folder->delete();
+
+        list($type, $nodeId) = explode('_', $id);
+
+        if ($type === 'folder') {
+            $folder = Folder::with('files', 'children')->findOrFail($nodeId);
+            // Cần xóa đệ quy file và thư mục con
+            $this->deleteFolderRecursive($folder);
+        } elseif ($type === 'file') {
+            $file = File::findOrFail($nodeId);
+            Storage::disk('public')->delete($file->path);
+            $file->delete();
+        }
+
         return response()->json(['success' => true]);
     }
+    
+    private function deleteFolderRecursive(Folder $folder)
+    {
+        foreach ($folder->children as $child) {
+            $this->deleteFolderRecursive($child);
+        }
 
-    // Đổi tên folder
+        foreach ($folder->files as $file) {
+            Storage::disk('public')->delete($file->path);
+            $file->delete();
+        }
+
+        $folder->delete();
+    }
+
+
+    // Đổi tên folder hoặc file
     public function rename(Request $request, $id)
     {
         $user = Auth::user();
@@ -131,9 +208,25 @@ class FolderController extends Controller
             return response()->json(['error' => 'Không có quyền'], 403);
         }
         $request->validate(['text' => 'required']);
-        $folder = Folder::findOrFail($id);
-        $folder->name = $request->text;
-        $folder->save();
+
+        list($type, $nodeId) = explode('_', $id);
+        
+        if ($type === 'folder') {
+            $folder = Folder::findOrFail($nodeId);
+            $folder->name = $request->text;
+            $folder->save();
+        } elseif ($type === 'file') {
+            $file = File::findOrFail($nodeId);
+            $file->name = $request->text;
+            $file->save();
+        }
+
         return response()->json(['success' => true]);
+    }
+
+    public function download($id)
+    {
+        $file = File::findOrFail($id);
+        return \Storage::disk('public')->download($file->path, $file->name);
     }
 } 

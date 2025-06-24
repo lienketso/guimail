@@ -18,46 +18,131 @@
                     return { "tax_code" : "{{ $tax_code }}" };
                 }
             },
-            "check_callback" : true
+            "check_callback" : function (operation, node, node_parent, node_position, more) {
+                if (operation === "move_node") {
+                    // chỉ cho phép di chuyển thư mục vào thư mục khác
+                    return node.type === 'folder' && (node_parent.type === 'folder' || node_parent.id === '#');
+                }
+                return true; // cho phép các thao tác khác
+            }
         },
-        "plugins" : [ "dnd", "contextmenu" ],
+        "types" : {
+            "folder" : {
+                "icon" : "jstree-icon jstree-folder"
+            },
+            "file" : {
+                "icon" : "jstree-icon jstree-file",
+                "valid_children": []
+            }
+        },
+        "plugins" : [ "dnd", "contextmenu", "types", "wholerow" ],
         "contextmenu": {
             "items": function(node) {
-                var items = $.jstree.defaults.contextmenu.items();
-                items.create.label = "Tạo thư mục con";
-                items.create.action = function () {
-                    selectedNode = node;
-                    $('#modalCreateFolder').modal('show');
-                };
-                items.rename.label = "Đổi tên";
-                items.rename.action = function () {
-                    $('#jstree').jstree(true).edit(node);
-                };
-                items.remove.label = "Xóa";
-                items.remove.action = function () {
-                    if (confirm('Bạn có chắc muốn xóa thư mục này?')) {
-                        $.ajax({
-                            url: '/folders/' + node.id,
-                            method: 'DELETE',
-                            data: {
-                                _token: "{{ csrf_token() }}"
-                            },
-                            success: function() {
-                                $('#jstree').jstree(true).refresh();
-                            },
-                            error: function(xhr) {
-                                alert('Lỗi: ' + (xhr.responseJSON?.message || 'Không thể xóa'));
-                            }
-                        });
+                var items = {};
+
+                if (node.type === 'folder') {
+                    items.create = {
+                        "label": "Tạo thư mục con",
+                        "action": function () {
+                            selectedNode = node;
+                            $('#modalCreateFolder').modal('show');
+                        }
+                    };
+                    items.upload = {
+                        "label": "Upload file",
+                        "action": function () {
+                            selectedNode = node;
+                            $('#modalUploadFile').modal('show');
+                        }
+                    };
+                }
+                if (node.type === 'file') {
+                    items.download = {
+                        "label": "Tải xuống",
+                        "action": function () {
+                            window.open(node.a_attr.href, '_blank');
+                        }
+                    };
+                }
+                
+                items.rename = {
+                    "label": "Đổi tên",
+                    "action": function () {
+                        $('#jstree').jstree(true).edit(node);
                     }
                 };
+
+                items.remove = {
+                    "label": "Xóa",
+                    "action": function () {
+                        let message = node.type === 'folder' ? 'Bạn có chắc muốn xóa thư mục này và toàn bộ nội dung bên trong?' : 'Bạn có chắc muốn xóa file này?';
+                        if (confirm(message)) {
+                            $.ajax({
+                                url: '/folders/' + node.id,
+                                method: 'DELETE',
+                                data: { _token: "{{ csrf_token() }}" },
+                                success: function() {
+                                    $('#jstree').jstree(true).delete_node(node);
+                                },
+                                error: function(xhr) {
+                                    alert('Lỗi: ' + (xhr.responseJSON?.message || 'Không thể xóa'));
+                                }
+                            });
+                        }
+                    }
+                };
+                
                 return items;
             }
         }
     });
     
+    // Hàm kiểm tra thiết bị di động
+    function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    // Chỉ áp dụng cho mobile: click vào node sẽ hiện context menu
+    if (isMobile()) {
+        $(document).on('touchend', '#jstree li > a', function(e) {
+            e.preventDefault();
+            var nodeId = $(this).closest('li').attr('id');
+            var tree = $('#jstree').jstree(true);
+            tree.deselect_all();
+            tree.select_node(nodeId);
+            setTimeout(function() {
+                tree.show_contextmenu(nodeId);
+            }, 100); // delay nhỏ để đảm bảo node đã được select
+        });
+        // Ngoài ra, nếu muốn hỗ trợ cả click trên mobile (trường hợp touch không nhận), thêm:
+        $(document).on('click', '#jstree li > a', function(e) {
+            if (isMobile()) {
+                e.preventDefault();
+                var nodeId = $(this).closest('li').attr('id');
+                var tree = $('#jstree').jstree(true);
+                tree.deselect_all();
+                tree.select_node(nodeId);
+                setTimeout(function() {
+                    tree.show_contextmenu(nodeId);
+                }, 100);
+            }
+        });
+    }
+
     $('#jstree').on('select_node.jstree', function (e, data) {
         selectedNode = data.node;
+        if (isMobile()) {
+            // Hiển thị context menu tại vị trí node
+            $('#jstree').jstree(true).show_contextmenu(data.node);
+        }
+        // Chỉ cho phép upload khi node được chọn là thư mục
+        if (selectedNode.type !== 'folder') {
+            $('#btn-upload-file').prop('disabled', true);
+            $('#btn-create-folder').prop('disabled', true);
+        } else {
+            $('#btn-upload-file').prop('disabled', false);
+            $('#btn-create-folder').prop('disabled', false);
+        }
     });
     
     $('#jstree').on('rename_node.jstree', function (e, data) {
@@ -80,14 +165,16 @@
     
     $('#jstree').on('move_node.jstree', function (e, data) {
         // Lấy danh sách id các node cùng cấp sau khi di chuyển
-        var parent = data.parent;
-        var children = $('#jstree').jstree(true).get_node(parent).children;
+        var parentNode = $('#jstree').jstree(true).get_node(data.parent);
+        if (!parentNode) return;
+        
+        var children = parentNode.children;
         $.ajax({
             url: "{{ route('folders.move') }}",
             method: "POST",
             data: {
                 id: data.node.id,
-                parent_id: parent === "#" ? null : parent,
+                parent_id: selectedNode ? selectedNode.id : '#',
                 order: children, // mảng id theo thứ tự mới
                 _token: "{{ csrf_token() }}"
             },
@@ -124,12 +211,14 @@
             method: "POST",
             data: {
                 name: $('#folder-name').val(),
-                parent_id: selectedNode ? selectedNode.id : null,
+                parent_id: selectedNode ? selectedNode.id : '#',
                 company_id: company_id,
                 _token: "{{ csrf_token() }}"
             },
             success: function(res) {
-                $('#jstree').jstree(true).refresh();
+                $('#jstree').jstree(true).create_node(res.parent, res, "last", function(newNode){
+                    $('#jstree').jstree('open_node', res.parent);
+                });
                 $('#modalCreateFolder').modal('hide');
                 $('#folder-name').val('');
             },
@@ -163,7 +252,9 @@
             processData: false,
             contentType: false,
             success: function(res) {
-                alert('Upload thành công!');
+                $('#jstree').jstree(true).create_node(res.parent, res, "last", function(newNode){
+                   $('#jstree').jstree('open_node', res.parent);
+                });
                 $('#modalUploadFile').modal('hide');
                 $('#file-upload').val('');
             },
@@ -205,9 +296,10 @@
     </div>
     <div class="mt-3 mb-3 button-folder">
         <button class="btn btn-primary" id="btn-create-root-folder">Tạo thư mục gốc</button>
-        <button class="btn btn-primary" id="btn-create-folder">Tạo thư mục</button>
+        <button class="btn btn-primary" id="btn-create-folder">Tạo thư mục con</button>
         <button class="btn btn-success" id="btn-upload-file">Upload file</button>
     </div>
+    
     <div id="jstree"></div>
     
     <button class="btn btn-secondary mt-3" onclick="location.href='{{ route('taxcode.form') }}'">Đổi mã số thuế</button>
