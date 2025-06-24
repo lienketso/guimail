@@ -14,6 +14,7 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserLoginLogController;
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -53,4 +54,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
   
     Route::get('/folders/download/{id}', [FolderController::class, 'download'])->name('folders.download');
+    Route::get('/logs/login', [UserLoginLogController::class, 'index'])->name('logs.login');
+    Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
 });

@@ -17,13 +17,35 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
+        $login = $request->input('email');
+        $password = $request->input('password');
+        // Kiểm tra là email hay số điện thoại
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $user = \App\Models\User::where($fieldType, $login)->first();
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Tài khoản không tồn tại hoặc thông tin không đúng.',
+            ]);
+        }
+        if ($user->status !== 'active') {
+            return back()->withErrors([
+                'email' => 'Tài khoản của bạn đã bị khóa hoặc chưa được kích hoạt.',
+            ]);
+        }
+        // Thử đăng nhập
+        if (Auth::attempt([$fieldType => $login, 'password' => $password, 'status' => 'active'])) {
             $request->session()->regenerate();
+            // Ghi log đăng nhập
+            \App\Models\UserLoginLog::create([
+                'user_id' => Auth::id(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'login_at' => now(),
+            ]);
             return redirect()->route('taxcode.form');
         }
         return back()->withErrors([
-            'email' => 'Email hoặc mật khẩu không đúng.',
+            'email' => 'Email/SĐT hoặc mật khẩu không đúng.',
         ]);
     }
 

@@ -36,13 +36,14 @@ body { padding-top: 70px; background: #f8fafc; }
     color: #fff;
 }
 .btn-primary, .btn-success, .btn-warning, .btn-danger {
-    border-radius: 2rem;
+    border-radius: 8px;
     font-weight: 500;
     box-shadow: 0 2px 6px rgba(0,0,0,0.07);
 }
 .btn-primary {
-    background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
-    border: none;
+    color: #000;
+    border: 2px solid #000;
+    background-color: #fff;
 }
 .btn-success {
     background: linear-gradient(90deg, #00c851 0%, #33b5e5 100%);
@@ -96,6 +97,7 @@ body { padding-top: 70px; background: #f8fafc; }
 }
 .button-folder button{
     font-size: 14px;
+    margin-right: 10px;
 }
 .download-template-file{
     padding-left: 20px;
@@ -123,4 +125,47 @@ a.btn:hover {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+/* Login page custom style */
+.login-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login-card {
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    background: #fff;
+    padding: 2.5rem 1rem 2rem 1rem;
+    border: none;
+}
+.login-card .card-header {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3b3b3b;
+    margin-bottom: 1rem;
+}
+.login-card .form-control:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99,102,241,.15);
+}
+.login-card .btn-primary {
+    background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+    border: none;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+.login-card .btn-primary:hover {
+    background: linear-gradient(90deg, #60a5fa 0%, #6366f1 100%);
+    filter: brightness(95%);
+}
+.login-card .alert {
+    border-radius: 8px;
+    font-size: 0.95rem;
 }

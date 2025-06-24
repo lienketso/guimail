@@ -229,4 +229,21 @@ class FolderController extends Controller
         $file = File::findOrFail($id);
         return \Storage::disk('public')->download($file->path, $file->name);
     }
+
+    public function searchFiles(Request $request)
+    {
+        $request->validate([
+            'tax_code' => 'required',
+            'keyword' => 'required|string|min:1',
+        ]);
+        $company = \App\Models\Company::where('tax_code', $request->tax_code)->firstOrFail();
+        $keyword = $request->keyword;
+        $files = \App\Models\File::whereHas('folder', function($q) use ($company) {
+            $q->where('company_id', $company->id);
+        })
+        ->where('name', 'like', '%' . $keyword . '%')
+        ->orderByDesc('id')
+        ->get();
+        return view('folders.search_result', compact('files', 'keyword', 'company'));
+    }
 } 

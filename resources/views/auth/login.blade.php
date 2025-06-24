@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <title>Đăng nhập</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
-<body class="bg-light">
-<div class="container mt-5">
+<body class="login-bg">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-4">
-            <div class="card">
+            <div class="card login-card">
                 <div class="card-header text-center">Đăng nhập</div>
                 <div class="card-body">
                     @if ($errors->any())
@@ -25,7 +26,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required autofocus>
+                            <input type="text" class="form-control" id="email" name="email" required autofocus>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Mật khẩu</label>

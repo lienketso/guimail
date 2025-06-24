@@ -11,7 +11,15 @@ class CompanyController extends Controller
 {
     public function index()
     {
-        $companies = Company::paginate(20);
+        $this->authorizeAdmin();
+        $query = Company::query();
+        if (request('name')) {
+            $query->where('name', 'like', '%' . request('name') . '%');
+        }
+        if (request('tax_code')) {
+            $query->where('tax_code', 'like', '%' . request('tax_code') . '%');
+        }
+        $companies = $query->orderByDesc('id')->paginate(20)->withQueryString();
         return view('companies.index', compact('companies'));
     }
 

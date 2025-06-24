@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -18,6 +18,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                @if(Auth::user()?->role === 'admin')
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('companies.*') ? 'active' : '' }}" href="{{ route('companies.index') }}">Quản lý công ty</a>
                 </li>
@@ -25,7 +26,11 @@
                     <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">Quản lý user</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('taxcode.form') ? 'active' : '' }}" href="{{ route('taxcode.form') }}">Tra cứu mã số thuế</a>
+                    <a class="nav-link {{ request()->routeIs('logs.login') ? 'active' : '' }}" href="{{ route('logs.login') }}">Lịch sử đăng nhập</a>
+                </li>
+                @endif
+                <li class="nav-item">
+                    <a style="color: yellow !important;" class="nav-link {{ request()->routeIs('taxcode.form') ? 'active' : '' }}" href="{{ route('taxcode.form') }}">Tra cứu mã số thuế</a>
                 </li>
             </ul>
             <span class="navbar-text me-3">

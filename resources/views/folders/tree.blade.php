@@ -294,10 +294,20 @@
             <span class="company-info-value"><strong>{{ $company->founded_year }}</strong></span>
         </div>
     </div>
+    <form class="row g-2 mb-3 mt-3" method="POST" action="{{ route('folders.searchFiles') }}">
+        @csrf
+        <input type="hidden" name="tax_code" value="{{ $tax_code }}">
+        <div class="col-8">
+            <input type="text" class="form-control" name="keyword" placeholder="Nhập tên file cần tìm nhanh..." required>
+        </div>
+        <div class="col-4">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Tìm kiếm file</button>
+        </div>
+    </form>
     <div class="mt-3 mb-3 button-folder">
-        <button class="btn btn-primary" id="btn-create-root-folder">Tạo thư mục gốc</button>
-        <button class="btn btn-primary" id="btn-create-folder">Tạo thư mục con</button>
-        <button class="btn btn-success" id="btn-upload-file">Upload file</button>
+        <button class="btn btn-primary" id="btn-create-root-folder"><i class="bi bi-folder-plus"></i> Tạo thư mục gốc</button>
+        <button class="btn btn-primary" id="btn-create-folder"><i class="bi bi-folder-plus"></i> Tạo thư mục con</button>
+        <button class="btn btn-success" id="btn-upload-file"><i class="bi bi-cloud-upload"></i> Upload file</button>
     </div>
     
     <div id="jstree"></div>
