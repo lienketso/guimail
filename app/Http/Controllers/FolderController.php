@@ -15,7 +15,10 @@ class FolderController extends Controller
     {
         $tax_code = $request->input('tax_code');
         $company = \App\Models\Company::where('tax_code', $tax_code)->first();
-        $company_id = $company ? $company->id : null;
+        if (!$company) {
+            return redirect()->route('taxcode.form')->withErrors(['tax_code' => 'Không tìm thấy công ty với mã số thuế này!']);
+        }
+        $company_id = $company->id;
         return view('folders.tree', compact('tax_code', 'company_id','company'));
     }
     // Lấy cây thư mục theo mã số thuế

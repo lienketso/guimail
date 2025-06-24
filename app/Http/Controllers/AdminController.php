@@ -10,6 +10,9 @@ class AdminController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Bạn không có quyền truy cập!');
         }
-        return view('admin.dashboard');
+        $companyCount = \App\Models\Company::count();
+        $userCount = \App\Models\User::count();
+        $fileCount = \App\Models\File::count();
+        return view('admin.dashboard', compact('companyCount', 'userCount', 'fileCount'));
     }
 } 

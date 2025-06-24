@@ -169,3 +169,7 @@ a.btn:hover {
     border-radius: 8px;
     font-size: 0.95rem;
 }
+.alert{
+    font-size: 13px !important;
+    padding: 10px;
+}
