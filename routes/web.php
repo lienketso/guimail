@@ -45,14 +45,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/companies/import', [CompanyController::class, 'import'])->name('companies.import');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
- 
+
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-  
+
     Route::get('/folders/download/{id}', [FolderController::class, 'download'])->name('folders.download');
     Route::get('/logs/login', [UserLoginLogController::class, 'index'])->name('logs.login');
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');

@@ -9,7 +9,7 @@
 <script>
     const company_id = "{{ $company_id }}";
     let selectedNode = null;
-    
+
     $('#jstree').jstree({
         'core' : {
             'data' : {
@@ -64,7 +64,7 @@
                         }
                     };
                 }
-                
+
                 items.rename = {
                     "label": "Đổi tên",
                     "action": function () {
@@ -78,9 +78,12 @@
                         let message = node.type === 'folder' ? 'Bạn có chắc muốn xóa thư mục này và toàn bộ nội dung bên trong?' : 'Bạn có chắc muốn xóa file này?';
                         if (confirm(message)) {
                             $.ajax({
-                                url: '/folders/' + node.id,
-                                method: 'DELETE',
-                                data: { _token: "{{ csrf_token() }}" },
+                                url: "{{ route('folders.destroy', ['id' => 'NODE_ID']) }}".replace('NODE_ID', node.id),
+                                method: 'POST',
+                                data: { 
+                                    _method: 'DELETE',
+                                    _token: "{{ csrf_token() }}" 
+                                },
                                 success: function() {
                                     $('#jstree').jstree(true).delete_node(node);
                                 },
@@ -91,12 +94,12 @@
                         }
                     }
                 };
-                
+
                 return items;
             }
         }
     });
-    
+
     // Hàm kiểm tra thiết bị di động
     function isMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -144,12 +147,13 @@
             $('#btn-create-folder').prop('disabled', false);
         }
     });
-    
+
     $('#jstree').on('rename_node.jstree', function (e, data) {
         $.ajax({
-            url: '/folders/' + data.node.id,
-            method: 'PATCH',
+            url: "{{ route('folders.rename', ['id' => 'NODE_ID']) }}".replace('NODE_ID', data.node.id),
+            method: 'POST',
             data: {
+                _method: 'PATCH',
                 text: data.text,
                 _token: "{{ csrf_token() }}"
             },
@@ -162,12 +166,12 @@
             }
         });
     });
-    
+
     $('#jstree').on('move_node.jstree', function (e, data) {
         // Lấy danh sách id các node cùng cấp sau khi di chuyển
         var parentNode = $('#jstree').jstree(true).get_node(data.parent);
         if (!parentNode) return;
-        
+
         var children = parentNode.children;
         $.ajax({
             url: "{{ route('folders.move') }}",
@@ -200,7 +204,7 @@
         }
         $('#modalCreateFolder').modal('show');
     });
-    
+
     $('#form-create-folder').submit(function(e) {
         e.preventDefault();
         // Chỉ kiểm tra nếu KHÔNG phải tạo root
@@ -227,7 +231,7 @@
             }
         });
     });
-    
+
     $('#btn-upload-file').click(function() {
         if (!selectedNode) {
             alert('Hãy chọn thư mục để upload file!');
@@ -235,7 +239,7 @@
         }
         $('#modalUploadFile').modal('show');
     });
-    
+
     $('#form-upload-file').submit(function(e) {
         e.preventDefault();
         if (!selectedNode) {
@@ -309,9 +313,9 @@
         <button class="btn btn-primary" id="btn-create-folder"><i class="bi bi-folder-plus"></i> Tạo thư mục con</button>
         <button class="btn btn-success" id="btn-upload-file"><i class="bi bi-cloud-upload"></i> Upload file</button>
     </div>
-    
+
     <div id="jstree"></div>
-    
+
     <button class="btn btn-secondary mt-3" onclick="location.href='{{ route('taxcode.form') }}'">Đổi mã số thuế</button>
 </div>
 
@@ -362,4 +366,4 @@
 
 @endsection
 </body>
-</html> 
+</html>
