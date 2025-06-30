@@ -26,7 +26,7 @@ class FolderController extends Controller
     {
         $tax_code = $request->input('tax_code');
         $company = Company::where('tax_code', $tax_code)->firstOrFail();
-        
+
         $folders = Folder::where('company_id', $company->id)
             ->orderBy('parent_id')
             ->orderBy('sort_order')
@@ -70,7 +70,7 @@ class FolderController extends Controller
             'company_id' => 'required|exists:companies,id',
             'parent_id' => 'nullable|string', // Sẽ có dạng 'folder_xx' hoặc '#'
         ]);
-        
+
         $parentId = $request->parent_id;
         if ($parentId && $parentId !== '#') {
             $parentId = str_replace('folder_', '', $parentId);
@@ -110,7 +110,7 @@ class FolderController extends Controller
         ]);
 
         $folderId = str_replace('folder_', '', $request->folder_id);
-        
+
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
         $filename = pathinfo($originalName, PATHINFO_FILENAME);
@@ -118,19 +118,20 @@ class FolderController extends Controller
         $safeFilename = Str::slug($filename) . '.' . $extension;
 
         $path = $file->storeAs('uploads/' . date('Y') . '/' . date('m'), $safeFilename, 'public');
-        
+
         $fileModel = File::create([
             'name' => $originalName,
             'folder_id' => $folderId,
             'path' => $path,
         ]);
-        
+
         return response()->json([
             'id' => 'file_' . $fileModel->id,
             'parent' => 'folder_' . $fileModel->folder_id,
             'text' => $fileModel->name,
             'type' => 'file',
-            'a_attr' => ['href' => Storage::url($fileModel->path), 'target' => '_blank']
+            'a_attr' => ['href' => route('folders.download',$fileModel->id), 'target' => '_blank']
+//            'a_attr' => ['href' => Storage::url($fileModel->path), 'target' => '_blank']
         ]);
     }
 
@@ -193,7 +194,7 @@ class FolderController extends Controller
 
         return response()->json(['success' => true]);
     }
-    
+
     private function deleteFolderRecursive(Folder $folder)
     {
         foreach ($folder->children as $child) {
@@ -219,7 +220,7 @@ class FolderController extends Controller
         $request->validate(['text' => 'required']);
 
         list($type, $nodeId) = explode('_', $id);
-        
+
         if ($type === 'folder') {
             $folder = Folder::findOrFail($nodeId);
             $folder->name = $request->text;
@@ -255,4 +256,4 @@ class FolderController extends Controller
         ->get();
         return view('folders.search_result', compact('files', 'keyword', 'company'));
     }
-} 
+}
