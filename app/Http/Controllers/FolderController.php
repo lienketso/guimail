@@ -137,28 +137,34 @@ class FolderController extends Controller
     // Di chuyển thư mục (drag & drop)
     public function move(Request $request)
     {
-        $user = Auth::user();
-        if ($user->role === 'user') {
-            return response()->json(['error' => 'Không có quyền'], 403);
-        }
+        $id = $request->id;
+        $parent_id = $request->parent_id;
 
-        $nodeId = str_replace('folder_', '', $request->id);
-        $parentId = $request->parent_id;
-        if ($parentId && $parentId !== '#') {
-            $parentId = str_replace('folder_', '', $parentId);
-        } else {
-            $parentId = null;
-        }
+        if (Str::startsWith($id, 'file_')) {
+            // Xử lý file
+            $fileId = (int)Str::after($id, 'file_');
+            $file = File::findOrFail($fileId);
 
-        $folder = Folder::findOrFail($nodeId);
-        $folder->parent_id = $parentId;
-        $folder->save();
+            // Lấy id thư mục cha mới (nếu có)
+            $folderId = $parent_id == '#' ? null : (int)Str::after($parent_id, 'folder_');
+            $file->folder_id = $folderId;
+            $file->save();
+        } elseif (Str::startsWith($id, 'folder_')) {
+            // Xử lý folder
+            $folderId = (int)Str::after($id, 'folder_');
+            $folder = Folder::findOrFail($folderId);
 
-        // Cập nhật sort_order cho các node cùng cấp
-        if ($request->has('order')) {
-            foreach ($request->order as $index => $folderIdWithPrefix) {
-                $folderId = str_replace('folder_', '', $folderIdWithPrefix);
-                Folder::where('id', $folderId)->update(['sort_order' => $index]);
+            $parentFolderId = $parent_id == '#' ? null : (int)Str::after($parent_id, 'folder_');
+            $folder->parent_id = $parentFolderId;
+            $folder->save();
+
+            // Cập nhật thứ tự cho các con nếu có
+            if (is_array($request->order)) {
+                foreach ($request->order as $index => $childId) {
+                    if (Str::startsWith($childId, 'folder_')) {
+                        Folder::where('id', (int)Str::after($childId, 'folder_'))->update(['sort_order' => $index]);
+                    }
+                }
             }
         }
 
