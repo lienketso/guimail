@@ -21,7 +21,9 @@
             "check_callback" : function (operation, node, node_parent, node_position, more) {
                 if (operation === "move_node") {
                     // chỉ cho phép di chuyển thư mục vào thư mục khác
-                    return node.type === 'folder' && (node_parent.type === 'folder' || node_parent.id === '#');
+                    // return node.type === 'folder' && (node_parent.type === 'folder' || node_parent.id === '#');
+                    // Cho phép di chuyển file hoặc folder vào folder (hoặc root)
+                    return (node_parent.type === 'folder' || node_parent.id === '#');
                 }
                 return true; // cho phép các thao tác khác
             }
