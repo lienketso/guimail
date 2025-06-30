@@ -168,22 +168,21 @@
     });
 
     $('#jstree').on('move_node.jstree', function (e, data) {
-        // Lấy danh sách id các node cùng cấp sau khi di chuyển
-        var parentNode = $('#jstree').jstree(true).get_node(data.parent);
-        if (!parentNode) return;
+        var parent_id = data.parent; // id của thư mục cha mới
+        var children = $('#jstree').jstree(true).get_node(parent_id).children; // lấy đúng danh sách con của parent mới
 
-        var children = parentNode.children;
         $.ajax({
             url: "{{ route('folders.move') }}",
             method: "POST",
             data: {
                 id: data.node.id,
-                parent_id: selectedNode ? selectedNode.id : '#',
-                order: children, // mảng id theo thứ tự mới
+                parent_id: parent_id,
+                order: children, // mảng id các con của parent mới
                 _token: "{{ csrf_token() }}"
             },
             success: function(res) {
                 // Có thể thông báo thành công nếu muốn
+                alert('Sắp xếp vị trí thành công!');
             },
             error: function(xhr) {
                 alert('Lỗi: ' + (xhr.responseJSON?.message || 'Không thể di chuyển thư mục'));
