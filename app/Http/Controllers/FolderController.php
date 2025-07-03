@@ -8,6 +8,7 @@ use App\Models\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use SimpleXMLElement;
 
 class FolderController extends Controller
 {
@@ -255,5 +256,152 @@ class FolderController extends Controller
         ->orderByDesc('id')
         ->get();
         return view('folders.search_result', compact('files', 'keyword', 'company'));
+    }
+
+    // Hàm đệ quy lấy cây thư mục
+    private function getFolderTree($folders, $parentId = null)
+    {
+        $branch = [];
+        foreach ($folders as $folder) {
+            if ($folder->parent_id == $parentId) {
+                $children = $this->getFolderTree($folders, $folder->id);
+                $folder->children_tree = $children;
+                $branch[] = $folder;
+            }
+        }
+        return $branch;
+    }
+
+    public function managerView(Request $request)
+    {
+        $tax_code = $request->input('tax_code');
+        $company = Company::where('tax_code', $tax_code)->firstOrFail();
+
+        $folders = Folder::where('company_id', $company->id)
+            ->orderBy('parent_id')
+            ->orderBy('name','desc')
+            ->get();
+
+        $folderTree = $this->getFolderTree($folders);
+
+        return view('folders.manager', compact('company', 'folderTree'));
+    }
+
+    public function uploadXml(Request $request, $companyId)
+    {
+        $request->validate([
+            'xml_files.*' => 'required|file|mimes:xml',
+        ]);
+
+        $company = Company::findOrFail($companyId);
+
+        foreach ($request->file('xml_files') as $file) {
+            $xmlContent = file_get_contents($file->getRealPath());
+            try {
+                $xml = new SimpleXMLElement($xmlContent);
+
+                // Lấy thông tin cần thiết từ XML
+                $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
+                $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
+                $kieuKy = (string)$ky->kieuKy ?? '';
+                $kyKKhai = (string)$ky->kyKKhai ?? '';
+                $nam = '';
+                $quy = '';
+                if ($kieuKy == 'Q' && preg_match('/(\d)\/(\d{4})/', $kyKKhai, $m)) {
+                    $quy = 'Quý ' . $m[1];
+                    $nam = $m[2];
+                } elseif ($kieuKy == 'T' && preg_match('/(\d{2})\/(\d{4})/', $kyKKhai, $m)) {
+                    $quy = 'Tháng ' . $m[1];
+                    $nam = $m[2];
+                } else {
+                    $nam = date('Y');
+                }
+
+                $maTKhai = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->maTKhai ?? '';
+                $subFolderName = '';
+                if ($maTKhai === '842') {
+                    $subFolderName = 'VAT';
+                } elseif ($maTKhai === '843') {
+                    $subFolderName = 'TNDN';
+                } elseif ($maTKhai === '844') {
+                    $subFolderName = 'Báo cáo khác';
+                }
+
+                // 1. Tìm hoặc tạo folder Năm
+                $yearFolder = Folder::firstOrCreate([
+                    'name' => $nam,
+                    'parent_id' => null,
+                    'company_id' => $company->id,
+                ]);
+
+                // 2. Nếu có subFolderName thì tạo folder con (VAT/TNDN/Báo cáo khác)
+                $parentForLan = $yearFolder;
+                if ($subFolderName) {
+                    $subFolder = Folder::firstOrCreate([
+                        'name' => $subFolderName,
+                        'parent_id' => $yearFolder->id,
+                        'company_id' => $company->id,
+                    ]);
+                    $parentForLan = $subFolder;
+                }
+
+                // 3. Tìm hoặc tạo folder Quý/Tháng (nếu có)
+                $quyFolder = null;
+                if ($quy) {
+                    $quyFolder = Folder::firstOrCreate([
+                        'name' => $quy,
+                        'parent_id' => $parentForLan->id,
+                        'company_id' => $company->id,
+                    ]);
+                    $parentForLan = $quyFolder;
+                }
+
+                // 4. Tìm hoặc tạo folder Lần
+                $lanFolder = Folder::firstOrCreate([
+                    'name' => 'Lần ' . $soLan,
+                    'parent_id' => $parentForLan->id,
+                    'company_id' => $company->id,
+                ]);
+
+                // 6. Kiểm tra trùng tên file trong cùng folder Lần
+                $fileName = $file->getClientOriginalName();
+                $fileExists = \App\Models\File::where('folder_id', $lanFolder->id)
+                    ->where('name', $fileName)
+                    ->exists();
+                if ($fileExists) {
+                    return back()->with('error', 'File "' . $fileName . '" đã tồn tại trong thư mục này!');
+                }
+
+                // 7. Lưu file vật lý vào đúng disk public
+                $folderPath = "company_{$company->id}/{$nam}";
+                if ($subFolderName) $folderPath .= "/{$subFolderName}";
+                if ($quy) $folderPath .= "/{$quy}";
+                $folderPath .= "/Lan_{$soLan}";
+                $path = $file->storeAs($folderPath, $fileName, 'public');
+
+                // 8. Tạo bản ghi file
+                \App\Models\File::create([
+                    'name' => $fileName,
+                    'folder_id' => $lanFolder->id,
+                    'path' => $path,
+                ]);
+
+            } catch (\Exception $e) {
+                return back()->with('error', 'File XML không hợp lệ hoặc lỗi: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Upload thành công!');
+    }
+
+    public function setNgayNop(Request $request, $folderId)
+    {
+        $request->validate([
+            'ngay_nop' => 'required|date',
+        ]);
+        $folder = \App\Models\Folder::findOrFail($folderId);
+        $folder->ngay_nop = $request->ngay_nop;
+        $folder->save();
+        return response()->json(['success' => true]);
     }
 }

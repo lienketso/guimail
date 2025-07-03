@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Folder extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'parent_id', 'company_id'];
+    protected $fillable = [
+        'name',
+        'parent_id',
+        'company_id',
+        'sort_order',
+        'ngay_nop',
+    ];
 
     public function company()
     {

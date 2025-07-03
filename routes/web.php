@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
         $tax_code = $request->input('tax_code');
         return redirect()->route('folders.tree', ['tax_code' => $tax_code]);
     })->name('folders.taxcode');
+
+    Route::get('/folders/manager', [FolderController::class, 'managerView'])->name('folders.manager');
+    Route::post('/folders/{company}/upload-xml', [FolderController::class, 'uploadXml'])->name('folders.uploadXml');
+
     Route::delete('/folders/{id}', [FolderController::class, 'destroy'])->name('folders.destroy');
     Route::patch('/folders/{id}', [FolderController::class, 'rename'])->name('folders.rename');
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
@@ -56,4 +60,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/folders/download/{id}', [FolderController::class, 'download'])->name('folders.download');
     Route::get('/logs/login', [UserLoginLogController::class, 'index'])->name('logs.login');
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
+    Route::post('/folders/{folder}/ngay-nop', [App\Http\Controllers\FolderController::class, 'setNgayNop']);
 });
