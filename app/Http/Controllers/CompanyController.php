@@ -127,7 +127,8 @@ class CompanyController extends Controller
                     'founded_year' => $row[2],
                     'address' => $row[3],
                     'phone' => $row[4],
-                    'ceo_name' => $row[5]
+                    'ceo_name' => $row[5],
+                    'email' => $row[6]
                 ]
             );
             // Tạo folder cho từng năm từ founded_year đến năm hiện tại
