@@ -316,7 +316,7 @@ class FolderController extends Controller
                 $xml = new SimpleXMLElement($xmlContent);
 
                 // Lấy mã số thuế từ XML
-                $mst = (string)($xml->HSoKhaiThue->TTinChung->NNT->mst ?? '');
+                $mst = (string)($xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->NNT->mst ?? '');
                 if (empty($mst) || $mst !== $company->tax_code) {
                     // Nếu không đúng mã số thuế thì bỏ qua file này
                     continue;
