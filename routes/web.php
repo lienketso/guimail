@@ -65,6 +65,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/folders/download/{id}', [FolderController::class, 'download'])->name('folders.download');
     Route::get('/logs/login', [UserLoginLogController::class, 'index'])->name('logs.login');
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
-    Route::post('/folders/{folder}/ngay-nop', [App\Http\Controllers\FolderController::class, 'setNgayNop']);
+    Route::post('/folders/{folder}/ngay-nop', [FolderController::class, 'setNgayNop'])->name('folders.setNgayNop');
     Route::get('/folders/yearly-manager', [FolderController::class, 'yearlyManagerView'])->name('folders.yearly-manager');
 });

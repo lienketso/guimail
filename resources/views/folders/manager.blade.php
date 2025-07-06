@@ -45,7 +45,8 @@
             var folderId = document.getElementById('inputFolderId').value;
             var ngayNop = document.getElementById('inputNgayNop').value;
             if (!ngayNop) { alert('Vui lòng chọn ngày nộp!'); return; }
-            fetch('/folders/' + folderId + '/ngay-nop', {
+            var url = '{{ route('folders.setNgayNop', ['folder' => 'FOLDER_ID']) }}'.replace('FOLDER_ID', folderId);
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
