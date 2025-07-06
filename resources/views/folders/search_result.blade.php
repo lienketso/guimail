@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Kết quả tìm kiếm file')
 @section('content')
+<div class="container-fluid">
     <h3 class="title-main">Kết quả tìm kiếm file: "{{ $keyword }}"</h3>
     <a href="{{ url()->previous() }}" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Quay lại</a>
     <table class="table table-bordered table-striped">
@@ -27,4 +28,5 @@
             @endforelse
         </tbody>
     </table>
+</div>
 @endsection 

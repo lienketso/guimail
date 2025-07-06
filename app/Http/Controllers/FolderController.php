@@ -22,6 +22,7 @@ class FolderController extends Controller
         $company_id = $company->id;
         return view('folders.tree', compact('tax_code', 'company_id','company'));
     }
+
     // Lấy cây thư mục theo mã số thuế
     public function index(Request $request)
     {
@@ -69,7 +70,7 @@ class FolderController extends Controller
         $request->validate([
             'name' => 'required',
             'company_id' => 'required|exists:companies,id',
-            'parent_id' => 'nullable|string', // Sẽ có dạng 'folder_xx' hoặc '#'
+            'parent_id' => 'nullable', // Có thể là string hoặc integer
         ]);
 
         $parentId = $request->parent_id;
@@ -90,12 +91,26 @@ class FolderController extends Controller
             'company_id' => $company_id,
             'sort_order' => is_null($maxOrder) ? 0 : $maxOrder + 1
         ]);
-        return response()->json([
-            'id' => 'folder_' . $folder->id,
-            'parent' => $folder->parent_id ? 'folder_' . $folder->parent_id : '#',
-            'text' => $folder->name,
-            'type' => 'folder'
-        ]);
+
+        // Kiểm tra nếu request có Content-Type là application/json (từ manager) hay form (từ tree)
+        if ($request->header('Content-Type') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thư mục đã được tạo thành công',
+                'folder' => [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                    'parent_id' => $folder->parent_id
+                ]
+            ]);
+        } else {
+            return response()->json([
+                'id' => 'folder_' . $folder->id,
+                'parent' => $folder->parent_id ? 'folder_' . $folder->parent_id : '#',
+                'text' => $folder->name,
+                'type' => 'folder'
+            ]);
+        }
     }
 
     // Upload file vào thư mục
@@ -300,6 +315,13 @@ class FolderController extends Controller
             try {
                 $xml = new SimpleXMLElement($xmlContent);
 
+                // Lấy mã số thuế từ XML
+                $mst = (string)($xml->HSoKhaiThue->TTinChung->NNT->mst ?? '');
+                if (empty($mst) || $mst !== $company->tax_code) {
+                    // Nếu không đúng mã số thuế thì bỏ qua file này
+                    continue;
+                }
+
                 // Lấy thông tin cần thiết từ XML
                 $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
                 $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
@@ -321,10 +343,12 @@ class FolderController extends Controller
                 $subFolderName = '';
                 if ($maTKhai === '842') {
                     $subFolderName = 'VAT';
-                } elseif ($maTKhai === '843') {
+                } elseif ($maTKhai === '892') {
                     $subFolderName = 'TNDN';
-                } elseif ($maTKhai === '844') {
-                    $subFolderName = 'Báo cáo khác';
+                } elseif ($maTKhai === '402' || $maTKhai==='684') {
+                    $subFolderName = 'BCTC';
+                } elseif ($maTKhai === '953') {
+                    $subFolderName = 'TNCN';
                 }
 
                 // 1. Tìm hoặc tạo folder Năm
@@ -403,5 +427,35 @@ class FolderController extends Controller
         $folder->ngay_nop = $request->ngay_nop;
         $folder->save();
         return response()->json(['success' => true]);
+    }
+
+    public function yearlyManagerView(Request $request)
+    {
+        $tax_code = $request->input('tax_code');
+        $company = Company::where('tax_code', $tax_code)->firstOrFail();
+
+        // Lấy tất cả các năm có thư mục gốc (parent_id = null)
+        $years = Folder::where('company_id', $company->id)
+            ->whereNull('parent_id')
+            ->orderByDesc('name')
+            ->pluck('name')
+            ->toArray();
+
+        // Chọn năm, mặc định là năm mới nhất
+        $selectedYear = $request->input('year', $years[0] ?? null);
+
+        // Lấy folder năm đã chọn
+        $yearFolder = Folder::where('company_id', $company->id)
+            ->whereNull('parent_id')
+            ->where('name', $selectedYear)
+            ->first();
+
+        $folderTree = [];
+        if ($yearFolder) {
+            $folders = Folder::where('company_id', $company->id)->get();
+            $folderTree = $this->getFolderTree($folders, $yearFolder->id);
+        }
+
+        return view('folders.yearly_manager', compact('company', 'years', 'selectedYear', 'folderTree', 'tax_code'));
     }
 }

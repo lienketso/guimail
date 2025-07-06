@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Thêm user')
 @section('content')
+<div class="container">
     <h3 class="title-main">Thêm user mới</h3>
     <form action="{{ route('users.store') }}" method="POST">
         @csrf
@@ -41,4 +42,5 @@
         <button type="submit" class="btn btn-success">Lưu</button>
         <a href="{{ route('users.index') }}" class="btn btn-secondary">Quay lại</a>
     </form>
+</div>
 @endsection 

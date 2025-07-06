@@ -202,7 +202,6 @@ a.btn:hover {
     position: relative;
 }
 button.add-ngay-nop{
-    position: absolute;
     right: 0;
     color: #ccc;
     font-size: 10px;
@@ -229,7 +228,7 @@ button.add-ngay-nop{
 }
 ul.file-list, ul.folder-list {
     list-style: none;
-    padding-left: 18px;
+    padding-left: 0;
     margin-bottom: 0;
 }
 ul.file-list li, ul.folder-list li {
@@ -268,4 +267,106 @@ a.file-link:hover {
 }
 .content-page{
     padding-bottom: 50px;
+}
+
+/* Style cho nút thêm thư mục con */
+.add-subfolder {
+    margin-right: 5px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.upload-file-btn {
+    margin-right: 5px;
+    padding: 2px 6px;
+    font-size: 12px;
+    border: none;
+}
+.upload-file-btn i {
+    color: #666;
+}
+.folder-title .btn {
+    margin-left: 5px;
+}
+
+.folder-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Hiệu ứng phân nhánh cây thư mục */
+.tree-branch {
+    position: relative;
+    padding-left: 24px;
+}
+.tree-branch::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #bbb;
+}
+.tree-branch > .folder-title {
+    position: relative;
+}
+.tree-branch > .folder-title::before {
+    content: "";
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    width: 16px;
+    height: 1px;
+    background: #bbb;
+    transform: translateY(-50%);
+}
+
+/* Style cho form chọn năm trong yearly_manager */
+.year-select-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    margin-top: 20px;
+}
+.year-select-form label {
+    font-weight: 500;
+    margin-right: 8px;
+}
+.year-select-form select {
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-width: 90px;
+    font-size: 15px;
+}
+
+/* Bỏ list-style cho ul trong yearly_manager */
+.content-page ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* li đầu tiên dạng flex */
+.content-page ul.folder-parent-list {
+    display: flex;
+    gap: 12px;
+}
+.so-lan-nop{
+    font-size: 11px;
+    color: #9f2b2b;
+    font-weight: 500;
+}
+.back-to-manager-link{
+    color: #000;
+    padding: 4px 10px;
+    border: 1px solid;
+    border-radius: 8px;
+    text-decoration: none;
+}
+.back-to-manager-link:hover{
+    color: #000;
+    background-color: #f0f0f0;
 }

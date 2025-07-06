@@ -20,6 +20,11 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/tree-taxcode', function() {
+    return view('auth.taxcode-tree');
+})->middleware('auth')->name('taxcode.tree.form');
+
+
 Route::get('/taxcode', function() {
     return view('auth.taxcode');
 })->middleware('auth')->name('taxcode.form');
@@ -27,7 +32,7 @@ Route::get('/taxcode', function() {
 Route::middleware('auth')->group(function () {
     Route::get('/folders', [FolderController::class, 'showTree'])->name('folders.tree');
     Route::get('/folders/data', [FolderController::class, 'index'])->name('folders.data');
-    Route::post('/folders', [FolderController::class, 'store'])->name('folders.store');
+    Route::post('/folders/store', [FolderController::class, 'store'])->name('folders.store');
     Route::post('/folders/upload', [FolderController::class, 'upload'])->name('folders.upload');
     Route::post('/folders/move', [FolderController::class, 'move'])->name('folders.move');
     Route::post('/folders/taxcode', function (Illuminate\Http\Request $request) {
@@ -61,4 +66,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/logs/login', [UserLoginLogController::class, 'index'])->name('logs.login');
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
     Route::post('/folders/{folder}/ngay-nop', [App\Http\Controllers\FolderController::class, 'setNgayNop']);
+    Route::get('/folders/yearly-manager', [FolderController::class, 'yearlyManagerView'])->name('folders.yearly-manager');
 });

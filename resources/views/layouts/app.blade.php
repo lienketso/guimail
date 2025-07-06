@@ -29,6 +29,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('logs.login') ? 'active' : '' }}" href="{{ route('logs.login') }}">Lịch sử đăng nhập</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('taxcode.tree.form') ? 'active' : '' }}" href="{{ route('taxcode.tree.form') }}">Sửa dữ liệu</a>
+                </li>
                 @endif
                 <li class="nav-item">
                     <a style="color: yellow !important;" class="nav-link {{ request()->routeIs('taxcode.form') ? 'active' : '' }}" href="{{ route('taxcode.form') }}">Tra cứu mã số thuế</a>
@@ -49,7 +52,7 @@
         </div>
     </div>
 </nav>
-<div class="container mt-4">
+<div class="content-main mt-4">
     @yield('content')
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

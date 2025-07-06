@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Quản lý user')
 @section('content')
+<div class="container">
     <h3 class="title-main">Danh sách user</h3>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -46,4 +47,5 @@
     <div class="d-flex justify-content-center">
         {{ $users->links() }}
     </div>
+</div>
 @endsection 

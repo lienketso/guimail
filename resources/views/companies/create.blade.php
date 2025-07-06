@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Thêm công ty')
 @section('content')
+<div class="container">
     <h3 class="title-main">Thêm công ty mới</h3>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -24,15 +25,19 @@
         </div>
         <div class="mb-3">
             <label for="phone" class="form-label">Số điện thoại</label>
-            <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}" required>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone') }}" >
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" >
         </div>
         <div class="mb-3">
             <label for="address" class="form-label">Địa chỉ</label>
-            <input type="text" class="form-control" id="address" name="address" value="{{ old('address') }}" required>
+            <input type="text" class="form-control" id="address" name="address" value="{{ old('address') }}" >
         </div>
         <div class="mb-3">
             <label for="ceo_name" class="form-label">Người đại diện </label>
-            <input type="text" class="form-control" id="ceo_name" name="ceo_name" value="{{ old('ceo_name') }}" required>
+            <input type="text" class="form-control" id="ceo_name" name="ceo_name" value="{{ old('ceo_name') }}" >
         </div>
         <div class="mb-3">
             <label for="logo" class="form-label">Logo</label>
@@ -45,4 +50,5 @@
         <button type="submit" class="btn btn-success">Lưu</button>
         <a href="{{ route('companies.index') }}" class="btn btn-secondary">Quay lại</a>
     </form>
-@endsection
+</div>
+@endsection     

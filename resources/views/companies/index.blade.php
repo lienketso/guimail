@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Danh sách công ty')
 @section('content')
+<div class="container">
     <h3 class="title-main">Danh sách công ty</h3>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -61,4 +62,5 @@
     <div class="d-flex justify-content-center">
         {{ $companies->links() }}
     </div>
+</div>
 @endsection 

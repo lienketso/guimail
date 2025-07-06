@@ -37,7 +37,7 @@ class CompanyController extends Controller
             'tax_code' => 'required|unique:companies,tax_code',
             'founded_year' => 'required|integer|min:1800|max:' . date('Y')
         ]);
-        $data = $request->only('name', 'tax_code', 'founded_year', 'phone', 'address', 'ceo_name', 'description');
+        $data = $request->only('name', 'tax_code', 'founded_year', 'phone', 'address', 'ceo_name', 'description', 'email');
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('company_logos', 'public');
             $data['logo'] = $logoPath;
@@ -72,7 +72,7 @@ class CompanyController extends Controller
             'tax_code' => 'required|unique:companies,tax_code,' . $company->id,
             'founded_year' => 'required|integer|min:1800|max:' . date('Y'),
         ]);
-        $data = $request->only('name', 'tax_code', 'founded_year', 'phone', 'address', 'ceo_name', 'description');
+        $data = $request->only('name', 'tax_code', 'founded_year', 'phone', 'address', 'ceo_name', 'description', 'email');
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('company_logos', 'public');
             $data['logo'] = $logoPath;

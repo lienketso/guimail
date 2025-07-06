@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Lịch sử đăng nhập')
 @section('content')
+<div class="container">
     <h3 class="title-main">Lịch sử đăng nhập</h3>
     <table class="table table-bordered table-striped">
         <thead>
@@ -33,4 +34,5 @@
     <div class="d-flex justify-content-center">
         {{ $logs->links() }}
     </div>
+</div>
 @endsection 
