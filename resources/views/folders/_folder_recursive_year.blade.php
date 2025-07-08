@@ -2,10 +2,13 @@
     <div class="{{ isset($class) ? $class : '' }}">
         <div class="folder-title" style="display: flex; align-items: center; justify-content: space-between;">
             <span>
-                <i class="fa fa-folder folder-icon"></i> {{ $folder->name }} 
+                <i class="fa fa-folder folder-icon"></i> {{ $folder->name }}
+                @if($folder->name && (Str::contains(Str::lower($folder->name), 'quý') || Str::contains(Str::lower($folder->name), 'q')))
+                    / {{ $selectedYear }}
+                @endif
                 @if($folder->ngay_nop)
                     <span class="ngay-nop">Ngày nộp: {{ $folder->ngay_nop ? date('d/m/Y', strtotime($folder->ngay_nop)) : '' }}</span>
-                @endif 
+                @endif
             </span>
             @if($folder->name && (Str::contains(Str::lower($folder->name), 'quý') || Str::contains(Str::lower($folder->name), 'q')))
                 @php
@@ -15,7 +18,7 @@
                 @endphp
                 <span class="so-lan-nop">L{{ $soLanNop }}</span>
             @endif
-            
+
         </div>
         @if(count($folder->files))
             <ul class="file-list">

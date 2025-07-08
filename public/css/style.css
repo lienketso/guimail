@@ -50,8 +50,8 @@ body { padding-top: 70px; background: #f8fafc; }
     border: none;
 }
 .btn-warning {
-    background: linear-gradient(90deg, #ffbb33 0%, #ff8800 100%);
-    border: none;
+    background: #fff;
+    border: 1px solid #000;
 }
 .btn-danger {
     background: linear-gradient(90deg, #ff4444 0%, #cc0000 100%);
@@ -79,7 +79,7 @@ body { padding-top: 70px; background: #f8fafc; }
 .title-main {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #6610f2;
+    color: #000;
     position: relative;
     display: inline-block;
     margin-bottom: 1.2rem;
@@ -189,7 +189,7 @@ a.btn:hover {
     margin-top: 5px;
 }
 .folder-title {
-    font-weight: bold;
+    font-weight: 500;
     font-size: 14px;
     margin-bottom: 6px;
     display: flex;
@@ -370,4 +370,23 @@ a.file-link:hover {
 .back-to-manager-link:hover{
     color: #000;
     background-color: #f0f0f0;
+}
+@media (max-width:767px) {
+    .folder-row{
+        display: block;
+    }
+    .ngay-nop{
+        font-size: 10px;
+        font-weight: 600;
+    }
+    .form-upload-xml input[type="file"]{
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .year-select-form{
+        display: block;
+    }
+    .back-to-manager{
+        margin-top: 20px;
+    }
 }
