@@ -15,6 +15,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserLoginLogController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -67,4 +68,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
     Route::post('/folders/{folder}/ngay-nop', [FolderController::class, 'setNgayNop'])->name('folders.setNgayNop');
     Route::get('/folders/yearly-manager', [FolderController::class, 'yearlyManagerView'])->name('folders.yearly-manager');
+    Route::post('/api/chatbot', [ChatbotController::class, 'handle'])->name('ai.support');
 });

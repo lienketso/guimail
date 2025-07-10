@@ -43,7 +43,7 @@
             @endforeach
         </select>
         <div class="back-to-manager">
-            <a href="{{ route('folders.manager', ['tax_code' => $tax_code]) }}" 
+            <a href="{{ route('folders.manager', ['tax_code' => $tax_code]) }}"
                 class="back-to-manager-link"><i class="fa fa-arrow-left"></i> Quay lại kỳ kê khai</a>
         </div>
     </form>
@@ -58,5 +58,38 @@
                 <p>Không có thư mục cho năm này.</p>
         @endif
     </div>
+
+<hr>
+<div class="folder-stats-section">
+    <h5>Thống kê đã báo cáo trong năm {{ $selectedYear }}</h5>
+    @if(!empty($folderStats))
+        <table class="table table-bordered table-status">
+            <thead>
+                <tr>
+                    <th>Loại báo cáo</th>
+                    <th>Quý</th>
+                    <th>Số lần nộp báo cáo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($folderStats as $parent => $quarters)
+                    @php $rowspan = count($quarters); $first = true; @endphp
+                    @foreach($quarters as $quarter => $count)
+                        <tr>
+                            @if($first)
+                                <td rowspan="{{ $rowspan }}"><strong>{{ $parent }}</strong></td>
+                                @php $first = false; @endphp
+                            @endif
+                            <td>{{ $quarter }}</td>
+                            <td class="{{ $count <= 0 ? 'count-zero' : 'count-number' }}">{{ $count }}</td>
+                        </tr>
+                    @endforeach
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p>Không có dữ liệu thống kê cho năm này.</p>
+    @endif
+</div>
 </div>
 @endsection

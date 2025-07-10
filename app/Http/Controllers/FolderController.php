@@ -456,6 +456,39 @@ class FolderController extends Controller
             $folderTree = $this->getFolderTree($folders, $yearFolder->id);
         }
 
-        return view('folders.yearly_manager', compact('company', 'years', 'selectedYear', 'folderTree', 'tax_code'));
+        // Tạo biến thống kê luôn đủ loại báo cáo và quý
+        $reportTypes = ['VAT', 'BCTC', 'TNDN', 'TNCN'];
+        $quarters = ['Quý 1', 'Quý 2', 'Quý 3', 'Quý 4'];
+        $folderStats = [];
+        foreach ($reportTypes as $type) {
+            $folderStats[$type] = [];
+            foreach ($quarters as $quarter) {
+                $folderStats[$type][$quarter] = 0;
+            }
+        }
+        // Ghi đè số liệu thực tế nếu có trong $folderTree
+        foreach ($folderTree as $parent) {
+            $parentName = $parent->name;
+            if (in_array($parentName, $reportTypes)) {
+                if (!empty($parent->children)) {
+                    foreach ($parent->children as $child) {
+                        $childName = $child->name;
+                        if (in_array($childName, $quarters)) {
+                            $count = !empty($child->children) ? count($child->children) : 0;
+                            $folderStats[$parentName][$childName] = $count;
+                        }
+                    }
+                }
+            }
+        }
+        // Truyền xuống view
+        return view('folders.yearly_manager', [
+            'company' => $company,
+            'tax_code' => $tax_code,
+            'selectedYear' => $selectedYear,
+            'years' => $years,
+            'folderTree' => $folderTree,
+            'folderStats' => $folderStats, // Thêm dòng này
+        ]);
     }
 }

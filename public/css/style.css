@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap');
 .jstree{
     padding: 20px;
     border-radius: 10px;
@@ -10,7 +11,7 @@
 .jstree-default .jstree-container-ul .jstree-node{
     padding-left: 20px;
 }
-body { padding-top: 70px; background: #f8fafc; }
+body { padding-top: 70px; background: #f8fafc; font-family: "TikTok Sans", sans-serif; }
 .navbar {
     background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -370,6 +371,19 @@ a.file-link:hover {
 .back-to-manager-link:hover{
     color: #000;
     background-color: #f0f0f0;
+}
+.folder-stats-section{
+    padding-bottom: 50px;
+}
+.table-status tr th{
+    background-color: #efefef;
+}
+
+.count-zero {
+    color: #e53935 !important; /* Đỏ */
+}
+.count-number{
+    color: #067533 !important;
 }
 @media (max-width:767px) {
     .folder-row{
