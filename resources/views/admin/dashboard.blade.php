@@ -32,5 +32,38 @@
             </div>
         </div>
     </div>
+
+    <div class="mt-5">
+    <h4>Báo cáo nộp gần đây</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Công ty</th>
+                    <th>Loại báo cáo</th>
+                    <th>Lần báo cáo</th>
+                    <th>Ngày nộp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($recentReports as $report)
+                    <tr>
+                        <td>{{ $report->folder->company->name ?? 'N/A' }} - MST: {{ $report->folder->company->tax_code ?? 'N/A' }}</td>
+                        <td>{{ $report->folder->getParentPath() ?: 'Root' }}</td>
+                        <td>{{ $report->folder->name ?? 'N/A' }}</td>
+                        <td>{{ $report->folder->ngay_nop ? \Carbon\Carbon::parse($report->folder->ngay_nop )->format('d/m/Y') : 'N/A' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
+
+</div>
+
+
 @endsection 

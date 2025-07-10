@@ -34,4 +34,36 @@ class Folder extends Model
     {
         return $this->hasMany(File::class);
     }
+
+    /**
+     * Lấy đường dẫn đầy đủ của folder (từ root đến folder hiện tại)
+     */
+    public function getParentPath()
+    {
+        $path = [];
+        $current = $this;
+        
+        while ($current->parent) {
+            array_unshift($path, $current->parent->name);
+            $current = $current->parent;
+        }
+        
+        return implode(' > ', $path);
+    }
+
+    /**
+     * Lấy tất cả parent folders
+     */
+    public function getAllParents()
+    {
+        $parents = [];
+        $current = $this->parent;
+        
+        while ($current) {
+            $parents[] = $current;
+            $current = $current->parent;
+        }
+        
+        return array_reverse($parents); // Trả về từ root đến gần nhất
+    }
 } 

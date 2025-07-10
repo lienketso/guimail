@@ -13,6 +13,13 @@ class AdminController extends Controller
         $companyCount = \App\Models\Company::count();
         $userCount = \App\Models\User::count();
         $fileCount = \App\Models\File::count();
-        return view('admin.dashboard', compact('companyCount', 'userCount', 'fileCount'));
+
+        // Lấy 5 báo cáo nộp gần đây nhất
+        $recentReports = \App\Models\File::with(['folder.company', 'folder.parent'])
+            ->orderByDesc('created_at') // hoặc 'created_at' nếu không có 'ngay_nop'
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact('companyCount', 'userCount', 'fileCount', 'recentReports'));
     }
 } 
