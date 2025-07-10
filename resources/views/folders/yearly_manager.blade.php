@@ -74,14 +74,19 @@
             <tbody>
                 @foreach($folderStats as $parent => $quarters)
                     @php $rowspan = count($quarters); $first = true; @endphp
-                    @foreach($quarters as $quarter => $count)
+                    @foreach($quarters as $quarter => $data)
                         <tr>
                             @if($first)
                                 <td rowspan="{{ $rowspan }}"><strong>{{ $parent }}</strong></td>
                                 @php $first = false; @endphp
                             @endif
                             <td>{{ $quarter }}</td>
-                            <td class="{{ $count <= 0 ? 'count-zero' : 'count-number' }}">{{ $count }}</td>
+                            <td class="{{ $data['count'] <= 0 ? 'count-zero' : 'count-number' }}">
+                                {{ $data['count'] }}
+                                @if(!empty($data['dates']))
+                                    <span style="font-size: 12px; color: #888;"> - Ngày nộp:  {{ implode(', ', $data['dates']) }}</span>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 @endforeach

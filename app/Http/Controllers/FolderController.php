@@ -463,7 +463,10 @@ class FolderController extends Controller
         foreach ($reportTypes as $type) {
             $folderStats[$type] = [];
             foreach ($quarters as $quarter) {
-                $folderStats[$type][$quarter] = 0;
+                $folderStats[$type][$quarter] = [
+                    'count' => 0,
+                    'dates' => [],
+                ];
             }
         }
         // Ghi đè số liệu thực tế nếu có trong $folderTree
@@ -474,8 +477,21 @@ class FolderController extends Controller
                     foreach ($parent->children as $child) {
                         $childName = $child->name;
                         if (in_array($childName, $quarters)) {
-                            $count = !empty($child->children) ? count($child->children) : 0;
-                            $folderStats[$parentName][$childName] = $count;
+                            $dates = [];
+                            $count = 0;
+                            if (!empty($child->children)) {
+                                $count = count($child->children);
+                                foreach ($child->children as $lanFolder) {
+                                    if (!empty($lanFolder->ngay_nop)) {
+                                        // Định dạng d-m-Y
+                                        $dates[] = \Carbon\Carbon::parse($lanFolder->ngay_nop)->format('d-m-Y');
+                                    }
+                                }
+                            }
+                            $folderStats[$parentName][$childName] = [
+                                'count' => $count,
+                                'dates' => $dates,
+                            ];
                         }
                     }
                 }
