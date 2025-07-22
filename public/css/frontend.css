@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap');
+body {
+    background: #E6E0ED;
+    padding-top: 70px;
+    font-family: "TikTok Sans", sans-serif;
+    font-size: 16px;
+  }
+  .category-sidebar {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(96,65,136,0.05);
+    padding: 20px 0;
+  }
+  .nav-pills .nav-link {
+    color: #604188;
+    border-radius: 0;
+    font-weight: 500;
+    margin-bottom: 8px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-pills .nav-link.active, .nav-pills .nav-link:hover {
+    background: #604188;
+    color: #fff;
+  }
+  .tab-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(96,65,136,0.05);
+    padding: 24px;
+    min-height: 350px;
+  }
+  .card {
+    border: none;
+    border-radius: 10px;
+    background: #F8F6FB;
+    margin-bottom: 18px;
+  }
+  .card-title a {
+    color: #604188;
+    font-weight: 600;
+  }
+  .card-title a:hover {
+    color: #290e4b;
+    text-decoration: none;
+  }
+  .download-link {
+    color: #604188;
+    text-decoration: none;
+    font-size: 1.1em;
+    margin-left: 10px;
+    transition: color 0.2s;
+  }
+  .download-link:hover {
+    color: #3d295a;
+    text-decoration: underline;
+  }
+  .card-text {
+    color: #333;
+  }
+  .text-muted {
+    color: #a49ab6 !important;
+  }
+  .category-sidebar h3{
+    color: #604188;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+  }
+  .category-sidebar h3 i{
+    color: #604188;
+  }
+  .customer-care-box {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(96,65,136,0.08);
+    border: 2px solid #E6E0ED;
+  }
+  .btn-care {
+    background: #E6E0ED;
+    color: #604188;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 500;
+    font-size: 1.1em;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-care.btn-support.active, .btn-care.btn-support:focus {
+    background: #604188;
+    color: #fff;
+  }
+  .btn-care.btn-feedback.active, .btn-care.btn-feedback:focus {
+    background: #604188;
+    color: #fff;
+  }
+  .btn-care:hover {
+    background: #604188;
+    color: #fff;
+  }
+  .btn-submit {
+    background: #604188;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 28px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .btn-submit:hover {
+    background: #3d295a;
+  }
+  .care-form {
+    margin-top: 18px;
+    animation: fadeIn 0.3s;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+  .link-admin {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .link-admin a {
+    color: #fff;
+    background: #604188;
+    padding: 5px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+  .link-admin a:hover {
+    background: #290e4b;
+  }
+  .tab-content-detail{
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;  
+    box-shadow: 0 2px 8px rgba(96,65,136,0.05);
+  }
+  .tab-content-detail h1{
+    font-size: 24px;
+    font-weight: 600;
+    color: #604188;
+    margin-bottom: 20px;
+  }
+  .content-post{
+    margin-top: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    text-align: justify;
+  }
+  .post-header{
+    margin-bottom: 20px;
+  }
+  .post-header a{
+    color: #fff;
+    text-decoration: none;
+    background-color: #604188;
+  }
+  .post-header a:hover{
+    color: #fff;
+    background-color: #290e4b;
+  }
+.pagination .page-item .page-link {
+    color: #604188; /* Màu chữ tím */
+    background-color: #fff;
+    border: 1px solid #604188;
+    border-radius: 50% !important; /* Hình tròn */
+    width: 40px;
+    height: 40px;
+    line-height: 38px;
+    text-align: center;
+    margin: 0 4px;
+    transition: background 0.2s, color 0.2s;
+    font-weight: 500;
+    padding: 0;
+}
+
+.pagination .page-item.active .page-link,
+.pagination .page-item .page-link:hover,
+.pagination .page-item .page-link:focus {
+    background-color: #604188;
+    color: #fff;
+    border-color: #604188;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+    background: #f8f9fa;
+    border-color: #eee;
+}
+
+.pagination {
+    justify-content: center;
+    margin-top: 2rem;
+}

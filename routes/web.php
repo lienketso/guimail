@@ -16,8 +16,13 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserLoginLogController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\CategoryController;
 
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/', [FrontendController::class, 'home'])->name('frontend.home');
+
+Route::get('/adminlks', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -29,6 +34,10 @@ Route::get('/tree-taxcode', function() {
 Route::get('/taxcode', function() {
     return view('auth.taxcode');
 })->middleware('auth')->name('taxcode.form');
+
+//frontend
+Route::get('/bai-viet/{slug}', [FrontendController::class, 'postDetail'])->name('frontend.posts.detail');
+Route::get('/danh-muc/{slug}', [FrontendController::class, 'postList'])->name('frontend.posts.list');
 
 Route::middleware('auth')->group(function () {
     Route::get('/folders', [FolderController::class, 'showTree'])->name('folders.tree');
@@ -68,5 +77,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
     Route::post('/folders/{folder}/ngay-nop', [FolderController::class, 'setNgayNop'])->name('folders.setNgayNop');
     Route::get('/folders/yearly-manager', [FolderController::class, 'yearlyManagerView'])->name('folders.yearly-manager');
-    Route::post('/api/chatbot', [ChatbotController::class, 'handle'])->name('ai.support');
+    
+    //post
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{id}/edit', [PostController::class, 'edit'])->name('posts.edit');
+    Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+    //category
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
 });

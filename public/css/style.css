@@ -385,6 +385,14 @@ a.file-link:hover {
 .count-number{
     color: #067533 !important;
 }
+.navbar-nav .dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+.ck-editor__editable_inline {
+    min-height: 350px !important;
+    height: 350px !important;
+}
 @media (max-width:767px) {
     .folder-row{
         display: block;

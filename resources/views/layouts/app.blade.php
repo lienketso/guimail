@@ -38,6 +38,16 @@
                 <li class="nav-item">
                     <a style="color: yellow !important;" class="nav-link {{ request()->routeIs('taxcode.form') ? 'active' : '' }}" href="{{ route('taxcode.form') }}">Tra cứu mã số thuế</a>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Quản lý bài viết
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                        <li><a class="dropdown-item" href="{{ route('categories.index') }}">Danh mục</a></li>
+                        <li><a class="dropdown-item" href="{{ route('posts.index') }}">Bài viết</a></li>
+                        <li><a class="dropdown-item" href="{{ route('posts.create') }}">Thêm bài viết</a></li>
+                    </ul>
+                </li>
             </ul>
             <span class="navbar-text me-3">
                 {{ Auth::user()->name ?? '' }}
