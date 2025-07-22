@@ -38,6 +38,7 @@ Route::get('/taxcode', function() {
 //frontend
 Route::get('/bai-viet/{slug}', [FrontendController::class, 'postDetail'])->name('frontend.posts.detail');
 Route::get('/danh-muc/{slug}', [FrontendController::class, 'postList'])->name('frontend.posts.list');
+Route::post('/support/request', [FrontendController::class, 'supportRequest'])->name('support.request');
 
 Route::middleware('auth')->group(function () {
     Route::get('/folders', [FolderController::class, 'showTree'])->name('folders.tree');

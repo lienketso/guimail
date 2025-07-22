@@ -38,6 +38,7 @@ body {
   .card-title a {
     color: #604188;
     font-weight: 600;
+    text-decoration: none;
   }
   .card-title a:hover {
     color: #290e4b;
@@ -109,6 +110,7 @@ body {
   }
   .btn-submit:hover {
     background: #3d295a;
+    color: #fff;
   }
   .care-form {
     margin-top: 18px;
@@ -121,6 +123,7 @@ body {
   .link-admin {
     text-align: center;
     margin-bottom: 10px;
+    margin-top: 20px;
   }
   .link-admin a {
     color: #fff;
@@ -195,4 +198,26 @@ body {
 .pagination {
     justify-content: center;
     margin-top: 2rem;
+}
+.btn-detail{
+    margin-top: 10px;
+    text-align: right;
+    margin-bottom: 10px;
+}
+.btn-detail-link{
+  color: #604188;
+  text-decoration: none;
+  font-size: 12px;
+  margin-left: 10px;
+  transition: color 0.2s;
+  border: 1px solid;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background-color: #fff;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+.btn-detail-link:hover{
+  background-color: #604188;
+  color: #fff;
 }
