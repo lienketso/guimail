@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{asset('libs/confirm/jquery-confirm.css')}}">
 {{--    <link rel="stylesheet" href="{{ asset('css/chatbot.css') }}">--}}
 </head>
 <body>
@@ -48,6 +49,10 @@
                         <li><a class="dropdown-item" href="{{ route('posts.create') }}">Thêm bài viết</a></li>
                     </ul>
                 </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.task.index.get') ? 'active' : '' }}"
+                           href="{{ route('admin.task.index.get') }}">Quản lý công việc</a>
+                    </li>
             </ul>
             <span class="navbar-text me-3">
                 {{ Auth::user()->name ?? '' }}
@@ -69,6 +74,7 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{asset('libs/confirm/jquery-confirm.js')}}"></script>
 {{--<script src="{{ asset('js/chatbot.js') }}"></script>--}}
 @yield('js')
 @yield('js-init')
@@ -89,6 +95,35 @@
     </div>
 </div>
 <button id="chatbot-show-btn" style="display:none;">Chat</button> -->
+<script type="text/javascript">
+    // auto close
+    $('.confirm-class').on('click', function(e){
+        e.preventDefault();
+        let _this = $(e.currentTarget);
+        let url = _this.attr('data-url');
+        $.confirm({
+            title: 'Xác nhận xóa',
+            content: 'Bạn có chắc chắn muốn xóa dữ liệu không',
+            autoClose: 'cancelAction|10000',
+            escapeKey: 'cancelAction',
+            buttons: {
+                confirm: {
+                    btnClass: 'btn-red',
+                    text: 'Xóa dữ liệu',
+                    action: function(){
+                        location.href = url;
+                    }
+                },
+                cancelAction: {
+                    text: 'Hủy',
+                    action: function(){
+                        $.alert('Đã hủy xóa dữ liệu !');
+                    }
+                }
+            }
+        });
+    });
 
+</script>
 </body>
 </html>

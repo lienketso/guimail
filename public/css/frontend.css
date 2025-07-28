@@ -31,9 +31,10 @@ body {
   }
   .card {
     border: none;
-    border-radius: 10px;
+    border-radius: 0;
     background: #F8F6FB;
     margin-bottom: 18px;
+    border-bottom: 1px solid #E6E0ED;
   }
   .card-title a {
     color: #604188;
@@ -72,10 +73,12 @@ body {
     color: #604188;
   }
   .customer-care-box {
-    background: #fff;
+    background: #604188;
     border-radius: 14px;
     box-shadow: 0 2px 12px rgba(96,65,136,0.08);
     border: 2px solid #E6E0ED;
+    margin-bottom: 100px;
+    color: #fff;
   }
   .btn-care {
     background: #E6E0ED;
@@ -90,18 +93,21 @@ body {
   .btn-care.btn-support.active, .btn-care.btn-support:focus {
     background: #604188;
     color: #fff;
+    border: 1px solid #fff;
   }
   .btn-care.btn-feedback.active, .btn-care.btn-feedback:focus {
     background: #604188;
     color: #fff;
+    border: 1px solid #fff;
   }
   .btn-care:hover {
     background: #604188;
     color: #fff;
+    border: 1px solid #fff;
   }
   .btn-submit {
-    background: #604188;
-    color: #fff;
+    background: #fff;
+    color: #604188;
     border: none;
     border-radius: 8px;
     padding: 8px 28px;

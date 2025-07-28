@@ -1,5 +1,5 @@
 <div class="customer-care-box p-4">
-    <h4 class="mb-4" style="color:#604188;"><i class="fa fa-headset me-2"></i>Hỗ trợ khách hàng
+    <h4 class="mb-4" style=""><i class="fa fa-headset me-2"></i>Hỗ trợ khách hàng
     </h4>
     <div class="d-flex gap-3 mb-4">
         <button class="btn-care btn-support" onclick="showCareForm('support')"><i

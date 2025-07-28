@@ -19,6 +19,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TaskController;
 
 Route::get('/', [FrontendController::class, 'home'])->name('frontend.home');
 
@@ -40,6 +41,7 @@ Route::get('/bai-viet/{slug}', [FrontendController::class, 'postDetail'])->name(
 Route::get('/danh-muc/{slug}', [FrontendController::class, 'postList'])->name('frontend.posts.list');
 Route::post('/support/request', [FrontendController::class, 'supportRequest'])->name('support.request');
 
+//admin
 Route::middleware('auth')->group(function () {
     Route::get('/folders', [FolderController::class, 'showTree'])->name('folders.tree');
     Route::get('/folders/data', [FolderController::class, 'index'])->name('folders.data');
@@ -78,7 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/folders/search-files', [FolderController::class, 'searchFiles'])->name('folders.searchFiles');
     Route::post('/folders/{folder}/ngay-nop', [FolderController::class, 'setNgayNop'])->name('folders.setNgayNop');
     Route::get('/folders/yearly-manager', [FolderController::class, 'yearlyManagerView'])->name('folders.yearly-manager');
-    
+
     //post
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
@@ -93,5 +95,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    //Task
+    Route::get('tasks',[TaskController::class,'index'])->name('admin.task.index.get');
+    Route::get('tasks/create',[TaskController::class,'create'])->name('admin.task.create.get');
+    Route::post('tasks/create',[TaskController::class,'store'])->name('admin.task.create.post');
+    Route::get('tasks/edit/{id}',[TaskController::class,'edit'])->name('admin.task.edit.get');
+    Route::put('tasks/edit/{id}',[TaskController::class,'update'])->name('admin.task.edit.post');
+    Route::get('tasks/{id}',[TaskController::class,'destroy'])->name('admin.task.destroy');
+    Route::post('tasks/update-priority', [TaskController::class, 'updatePriority'])->name('admin.task.update-priority');
+    Route::post('task/update-status', [TaskController::class, 'updateStatus'])->name('admin.task.update-status');
 
 });

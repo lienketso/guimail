@@ -77,6 +77,9 @@ body { padding-top: 70px; background: #f8fafc; font-family: "TikTok Sans", sans-
     background: linear-gradient(90deg, #00c851 0%, #33b5e5 100%);
     color: #fff;
 }
+.content-main{
+    padding-bottom: 50px;
+}
 .title-main {
     font-size: 1.5rem;
     font-weight: 700;
@@ -392,6 +395,53 @@ a.file-link:hover {
 .ck-editor__editable_inline {
     min-height: 350px !important;
     height: 350px !important;
+}
+.priority {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.priority[data-priority="1"], .option-low { background: #d1e7dd; color: #0f5132; }
+.priority[data-priority="2"], .option-medium { background: #fff3cd; color: #664d03; }
+.priority[data-priority="3"], .option-high { background: #f8d7da; color: #842029; }
+.priority[data-priority="4"], .option-important { background: #f8d7da; color: #ff0015; }
+
+#priority-popup {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 120px;
+}
+.priority-option {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+.priority-option:hover {
+    background: #f1f1f1;
+}
+.btn-module{
+    padding: 0 5px;
+    color: #000;
+}
+.btn-module:hover{
+    color: #5e0404;
+    background-color: #f0f0f0;
+}
+.row-completed td {
+    color: #888 !important;
+    background-color: #f0f0f0;
+}
+.row-completed td.title-completed{
+    text-decoration: line-through;
+}
+.status-option{
+    padding: 5px 10px;
+    cursor: pointer;
 }
 @media (max-width:767px) {
     .folder-row{
