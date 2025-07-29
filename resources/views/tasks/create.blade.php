@@ -36,6 +36,7 @@
                 <label for="title" class="form-label">Tiêu đề công việc*</label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ old('title') }}" required>
             </div>
+            @if(Auth::user()->role === 'admin')
             <div class="mb-3">
                 <label for="category_id" class="form-label">Giao việc cho ?</label>
                 <select class="form-control" id="user_id" name="user_id">
@@ -45,7 +46,7 @@
                     @endforeach
                 </select>
             </div>
-
+            @endif
             <div class="mb-3">
                 <label for="content" class="form-label">Nội dung công việc</label>
                 <textarea class="form-control" id="content" name="content" rows="10">{{ old('content') }}</textarea>

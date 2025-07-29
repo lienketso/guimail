@@ -36,7 +36,12 @@ class TaskController extends Controller
        $request->validate([
            'title' => 'required',
        ]);
-       $task = Task::create($request->all());
+       
+       $data = $request->all();
+       if (empty($data['user_id'])) {
+           $data['user_id'] = Auth::id();
+       }
+       $task = Task::create($data);
        return redirect()->route('admin.task.index.get')->with('success', 'Đã thêm công việc!');
    }
 
@@ -48,7 +53,11 @@ class TaskController extends Controller
 
    public function update(Request $request,$id){
        $task = Task::find($id);
-       $task->update($request->all());
+       $data = $request->all();
+       if (empty($data['user_id'])) {
+           $data['user_id'] = Auth::id();
+       }
+       $task->update($data);
        return redirect()->route('admin.task.index.get')->with('success', 'Đã sửa công việc!');
    }
 
