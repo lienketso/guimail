@@ -1,4 +1,5 @@
 @extends('frontend.master')
+@section('title', 'Thông tin kiểm toán')
 @section('js-init')
     
 @endsection

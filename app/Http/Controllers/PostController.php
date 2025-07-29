@@ -62,5 +62,6 @@ class PostController extends Controller
     {
         $post = Post::find($id);
         $post->delete();
+        return redirect()->route('posts.index')->with('success', 'Bài viết đã được xóa thành công');
     }
 }
