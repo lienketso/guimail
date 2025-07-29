@@ -443,6 +443,16 @@ a.file-link:hover {
     padding: 5px 10px;
     cursor: pointer;
 }
+.count-task{
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background: red;
+    display: inline-block;
+    text-align: center;
+    font-size: 13px;
+    color: #fff;
+}
 @media (max-width:767px) {
     .folder-row{
         display: block;

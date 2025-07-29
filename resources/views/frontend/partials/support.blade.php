@@ -1,6 +1,13 @@
 <div class="customer-care-box p-4">
-    <h4 class="mb-4" style=""><i class="fa fa-headset me-2"></i>Hỗ trợ khách hàng
-    </h4>
+    <h4 class="mb-4" style=""><i class="fa fa-headset me-2"></i>Hỗ trợ khách hàng</h4>
+    <div class="description-support">
+        <p>Bạn có thể gửi thông tin hỗ trợ về công việc hoặc phản ánh về dịch vụ của chúng tôi.</p>
+        <ul style="padding-bottom: 10px;">
+            <li>Nếu bạn có nhu cầu hỗ trợ về công việc, vui lòng chọn hỗ trợ công việc.</li>
+            <li>Nếu bạn có nhu cầu phản ánh về dịch vụ, vui lòng chọn phản ánh dịch vụ.</li>
+        </ul>
+        
+    </div>
     <div class="d-flex gap-3 mb-4">
         <button class="btn-care btn-support" onclick="showCareForm('support')"><i
                 class="fa fa-comment"></i> Hỗ trợ công việc</button>
@@ -27,7 +34,7 @@
 
     <div id="support-success" style="display:none;">
         <div class="alert alert-success mt-3">Cảm ơn bạn đã gửi thông tin, chúng tôi sẽ xử lý sớm
-            nhất có thể!</div>
+            nhất có thể! </div>
         <button type="button" class="btn btn-primary" id="support-continue">Tiếp tục gửi</button>
     </div>
 

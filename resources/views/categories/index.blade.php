@@ -41,12 +41,8 @@
                 <td>{{ $category->status }}</td>
                 @if(Auth::user()->role === 'admin')
                 <td>
-                    <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> Sửa</a>
-                    <form action="{{ route('categories.destroy', $category->id) }}" method="POST" style="display:inline-block" onsubmit="return confirm('Bạn có chắc muốn xóa?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Xóa</button>
-                    </form>
+                    <a href="{{ route('categories.edit', $category->id) }}" class="btn-module btn-edit"><i class="fa fa-edit"></i></a>
+                    <a href="#" class="confirm-class btn-module btn-delete" data-url="{{ route('categories.destroy', $category->id) }}"><i class="fa fa-remove"></i></a>
                 </td>
                 @endif
             </tr>

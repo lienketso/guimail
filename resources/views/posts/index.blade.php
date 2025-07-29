@@ -41,12 +41,8 @@
                     <td>{{ $post->user->name }}</td>
                     <td>{{ $post->created_at->format('d/m/Y') }}</td>
                     <td>
-                        <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-primary">Sửa</a>
-                        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Xóa</button>
-                        </form>
+                        <a href="{{ route('posts.edit', $post->id) }}" class="btn-module btn-edit"><i class="fa fa-edit"></i></a>
+                        <a href="#" class="confirm-class btn-module btn-delete" data-url="{{ route('posts.destroy', $post->id) }}"><i class="fa fa-remove"></i></a>
                     </td>
                 </tr>
             @endforeach

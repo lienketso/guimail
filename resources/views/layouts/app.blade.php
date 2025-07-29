@@ -51,7 +51,14 @@
                 </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.task.index.get') ? 'active' : '' }}"
-                           href="{{ route('admin.task.index.get') }}">Quản lý công việc</a>
+                           href="{{ route('admin.task.index.get') }}">Quản lý công việc 
+                           @php
+                               $pendingCount = \App\Http\Controllers\TaskController::getPendingTaskCount();
+                           @endphp
+                           @if($pendingCount > 0)
+                               <span class="count-task">{{ $pendingCount }}</span>
+                           @endif
+                        </a>
                     </li>
             </ul>
             <span class="navbar-text me-3">

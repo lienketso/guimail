@@ -87,22 +87,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/posts/{id}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::get('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
     //category
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::get('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     //Task
     Route::get('tasks',[TaskController::class,'index'])->name('admin.task.index.get');
     Route::get('tasks/create',[TaskController::class,'create'])->name('admin.task.create.get');
     Route::post('tasks/create',[TaskController::class,'store'])->name('admin.task.create.post');
     Route::get('tasks/edit/{id}',[TaskController::class,'edit'])->name('admin.task.edit.get');
     Route::put('tasks/edit/{id}',[TaskController::class,'update'])->name('admin.task.edit.post');
-    Route::get('tasks/{id}',[TaskController::class,'destroy'])->name('admin.task.destroy');
+    Route::get('tasks/detail', [TaskController::class, 'detail'])->name('admin.task.detail');
     Route::post('tasks/update-priority', [TaskController::class, 'updatePriority'])->name('admin.task.update-priority');
     Route::post('task/update-status', [TaskController::class, 'updateStatus'])->name('admin.task.update-status');
+    Route::post('tasks/update-assignee', [TaskController::class, 'updateAssignee'])->name('admin.task.update-assignee');
+    Route::get('tasks/{id}',[TaskController::class,'destroy'])->name('admin.task.destroy');
 
 });
