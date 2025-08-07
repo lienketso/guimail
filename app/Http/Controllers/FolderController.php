@@ -325,6 +325,8 @@ class FolderController extends Controller
                 // Lấy thông tin cần thiết từ XML
                 $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
                 $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
+                $ngaykhai = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->ngayLapTKhai;
+                $ngaynop = \Carbon\Carbon::parse($ngaykhai)->format('Y-m-d');
                 $kieuKy = (string)$ky->kieuKy ?? '';
                 $kyKKhai = (string)$ky->kyKKhai ?? '';
                 $nam = '';
@@ -349,6 +351,8 @@ class FolderController extends Controller
                     $subFolderName = 'BCTC';
                 } elseif ($maTKhai === '953') {
                     $subFolderName = 'TNCN';
+                } else{
+                    $subFolderName = 'Báo cáo khác';
                 }
 
                 // 1. Tìm hoặc tạo folder Năm
@@ -385,6 +389,7 @@ class FolderController extends Controller
                     'name' => 'Lần ' . $soLan,
                     'parent_id' => $parentForLan->id,
                     'company_id' => $company->id,
+                    'ngay_nop' => $ngaynop,
                 ]);
 
                 // 6. Kiểm tra trùng tên file trong cùng folder Lần
@@ -456,34 +461,41 @@ class FolderController extends Controller
             $folderTree = $this->getFolderTree($folders, $yearFolder->id);
         }
 
-        // Tạo biến thống kê luôn đủ loại báo cáo và quý
-        $reportTypes = ['VAT', 'BCTC', 'TNDN', 'TNCN'];
+        // Tạo biến thống kê
+        $reportTypes = ['VAT', 'BCTC', 'TNDN', 'TNCN','Báo cáo khác'];
         $quarters = ['Quý 1', 'Quý 2', 'Quý 3', 'Quý 4'];
         $folderStats = [];
+
         foreach ($reportTypes as $type) {
             $folderStats[$type] = [];
-            foreach ($quarters as $quarter) {
-                $folderStats[$type][$quarter] = [
-                    'count' => 0,
-                    'dates' => [],
-                ];
+
+            if ($type === 'VAT') {
+                // Mặc định khởi tạo quý 1 -> quý 4
+                foreach ($quarters as $quarter) {
+                    $folderStats[$type][$quarter] = [
+                        'count' => 0,
+                        'dates' => [],
+                    ];
+                }
             }
         }
-        // Ghi đè số liệu thực tế nếu có trong $folderTree
+
+        // Duyệt dữ liệu folder thực tế
         foreach ($folderTree as $parent) {
             $parentName = $parent->name;
             if (in_array($parentName, $reportTypes)) {
                 if (!empty($parent->children)) {
                     foreach ($parent->children as $child) {
                         $childName = $child->name;
-                        if (in_array($childName, $quarters)) {
+
+                        if ($parentName === 'VAT' && in_array($childName, $quarters)) {
+                            // Trường hợp VAT + Quý
                             $dates = [];
                             $count = 0;
                             if (!empty($child->children)) {
                                 $count = count($child->children);
                                 foreach ($child->children as $lanFolder) {
                                     if (!empty($lanFolder->ngay_nop)) {
-                                        // Định dạng d-m-Y
                                         $dates[] = \Carbon\Carbon::parse($lanFolder->ngay_nop)->format('d-m-Y');
                                     }
                                 }
@@ -492,19 +504,36 @@ class FolderController extends Controller
                                 'count' => $count,
                                 'dates' => $dates,
                             ];
+                        } else {
+                            // Trường hợp còn lại: hiển thị theo năm con
+                            $yearChildName = $child->name;
+                            $count = !empty($child->children) ? count($child->children) : 0;
+
+                            if (!isset($folderStats[$parentName][$yearChildName])) {
+                                $folderStats[$parentName][$yearChildName] = [
+                                    'count' => 0,
+                                ];
+                            }
+
+//                            $folderStats[$parentName][$yearChildName]['count'] = $count;
+                            $folderStats[$parentName][$yearChildName]['dates'] = [\Carbon\Carbon::parse($child->ngay_nop)->format('d-m-Y')];
+                            // Bạn có thể thêm `dates` nếu cần ở đây
                         }
                     }
                 }
             }
         }
-        // Truyền xuống view
+
+//        dd($folderStats);
+
         return view('folders.yearly_manager', [
             'company' => $company,
             'tax_code' => $tax_code,
             'selectedYear' => $selectedYear,
             'years' => $years,
             'folderTree' => $folderTree,
-            'folderStats' => $folderStats, // Thêm dòng này
+            'folderStats' => $folderStats,
         ]);
     }
+
 }

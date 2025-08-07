@@ -65,31 +65,33 @@
     @if(!empty($folderStats))
         <table class="table table-bordered table-status">
             <thead>
-                <tr>
-                    <th>Loại báo cáo</th>
-                    <th>Quý</th>
-                    <th>Số lần nộp báo cáo</th>
-                </tr>
+            <tr>
+                <th>Loại báo cáo</th>
+                <th>Kỳ báo cáo</th> {{-- Đổi từ "Quý" sang "Kỳ báo cáo" để phù hợp --}}
+                <th>Số lần nộp báo cáo</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach($folderStats as $parent => $quarters)
-                    @php $rowspan = count($quarters); $first = true; @endphp
-                    @foreach($quarters as $quarter => $data)
-                        <tr>
-                            @if($first)
-                                <td rowspan="{{ $rowspan }}"><strong>{{ $parent }}</strong></td>
-                                @php $first = false; @endphp
+            @foreach($folderStats as $parent => $subFolders)
+                @php $rowspan = count($subFolders); $first = true; @endphp
+                @foreach($subFolders as $period => $data)
+                    <tr>
+                        @if($first)
+                            <td rowspan="{{ $rowspan }}"><strong>{{ $parent }}</strong></td>
+                            @php $first = false; @endphp
+                        @endif
+                        <td>{{ $period }}</td>
+                        <td class="{{ $data['count'] <= 0 ? 'count-zero' : 'count-number' }}">
+                            @if(!empty($data['count']) && $data['count']>=0) {{ $data['count'] }}@endif
+                            @if(!empty($data['dates']))
+                                <span style="font-size: 12px; color: #888;">
+                                    Ngày nộp: {{ implode(', ', $data['dates']) }}
+                                </span>
                             @endif
-                            <td>{{ $quarter }}</td>
-                            <td class="{{ $data['count'] <= 0 ? 'count-zero' : 'count-number' }}">
-                                {{ $data['count'] }}
-                                @if(!empty($data['dates']))
-                                    <span style="font-size: 12px; color: #888;"> - Ngày nộp:  {{ implode(', ', $data['dates']) }}</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
+                        </td>
+                    </tr>
                 @endforeach
+            @endforeach
             </tbody>
         </table>
     @else
