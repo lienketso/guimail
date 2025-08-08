@@ -325,9 +325,9 @@ class FolderController extends Controller
                 // Lấy thông tin cần thiết từ XML
                 $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
                 $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
-                $ngaykhai = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->ngayLapTKhai;
-                $ngaynop = \Carbon\Carbon::createFromFormat('d/m/Y', $ngaykhai)->format('Y-m-d');
-       
+                $ngayky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->ngayKy;
+//                $ngaynop = \Carbon\Carbon::createFromFormat('d/m/Y', $ngaykhai)->format('Y-m-d');
+
                 $kieuKy = (string)$ky->kieuKy ?? '';
                 $kyKKhai = (string)$ky->kyKKhai ?? '';
                 $nam = '';
@@ -390,7 +390,7 @@ class FolderController extends Controller
                     'name' => 'Lần ' . $soLan,
                     'parent_id' => $parentForLan->id,
                     'company_id' => $company->id,
-                    'ngay_nop' => $ngaynop,
+                    'ngay_nop' => $ngayky,
                 ]);
 
                 // 6. Kiểm tra trùng tên file trong cùng folder Lần
