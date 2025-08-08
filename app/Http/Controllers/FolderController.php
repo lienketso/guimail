@@ -326,7 +326,8 @@ class FolderController extends Controller
                 $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
                 $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
                 $ngaykhai = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->ngayLapTKhai;
-                $ngaynop = \Carbon\Carbon::parse($ngaykhai)->format('Y-m-d');
+                $ngaynop = \Carbon\Carbon::createFromFormat('d/m/Y', $ngaykhai)->format('Y-m-d');
+       
                 $kieuKy = (string)$ky->kieuKy ?? '';
                 $kyKKhai = (string)$ky->kyKKhai ?? '';
                 $nam = '';
