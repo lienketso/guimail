@@ -326,6 +326,7 @@ class FolderController extends Controller
                 $soLan = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->soLan ?? '0';
                 $ky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->KyKKhaiThue;
                 $ngayky = $xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->ngayKy;
+                $tenToKhai = (string)$xml->HSoKhaiThue->TTinChung->TTinTKhaiThue->TKhaiThue->tenTKhai ?? '';
 //                $ngaynop = \Carbon\Carbon::createFromFormat('d/m/Y', $ngaykhai)->format('Y-m-d');
 
                 $kieuKy = (string)$ky->kieuKy ?? '';
@@ -367,7 +368,9 @@ class FolderController extends Controller
                 $parentForLan = $yearFolder;
                 if ($subFolderName) {
                     $subFolder = Folder::firstOrCreate([
-                        'name' => $subFolderName,
+                        'name' => $subFolderName,   
+                        'ma_to_khai' => $maTKhai,
+                        'description' => $tenToKhai,
                         'parent_id' => $yearFolder->id,
                         'company_id' => $company->id,
                     ]);
@@ -379,6 +382,8 @@ class FolderController extends Controller
                 if ($quy) {
                     $quyFolder = Folder::firstOrCreate([
                         'name' => $quy,
+                        'ma_to_khai' => $maTKhai,
+                        'description' => $tenToKhai,
                         'parent_id' => $parentForLan->id,
                         'company_id' => $company->id,
                     ]);
@@ -388,6 +393,8 @@ class FolderController extends Controller
                 // 4. Tìm hoặc tạo folder Lần
                 $lanFolder = Folder::firstOrCreate([
                     'name' => 'Lần ' . $soLan,
+                    'ma_to_khai' => $maTKhai,
+                    'description' => $tenToKhai,
                     'parent_id' => $parentForLan->id,
                     'company_id' => $company->id,
                     'ngay_nop' => $ngayky,

@@ -13,6 +13,8 @@ class Folder extends Model
         'company_id',
         'sort_order',
         'ngay_nop',
+        'description',
+        'ma_to_khai',
     ];
 
     public function company()
