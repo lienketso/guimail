@@ -117,7 +117,7 @@ class ToolController extends Controller
         $unitIndex = findColumnIndex($headerMap, ['Đơn vị tính']);
         $priceIndex = findColumnIndex($headerMap, ['Đơn giá']);
         $productNameIndex = findColumnIndex($headerMap, ['Tên hàng hóa',' dịch vụ']);
-        $taxCodeIndex     = findColumnIndex($headerMap, ['MST người bán', 'Tên MST người bán', 'MST', 'Mã số thuế', 'Ma so thue', 'Tax code']);
+        $taxCodeIndex     = findColumnIndex($headerMap, ['MST người bán', 'Tên MST người bán']);
         $materialCodeIndex= findColumnIndex($headerMap, [
             'mã vt', 'ma vt', 'mã vật tư', 'ma vat tu', 'material code'
         ]);
@@ -144,7 +144,8 @@ class ToolController extends Controller
         $products = ProductImport::select(
             'id',
             'product_name',
-            'material_code'
+            'material_code',
+            'tax_code'
         )->get();
         $usedMaterialCodes = $products
             ->pluck('material_code')
@@ -168,7 +169,7 @@ class ToolController extends Controller
             kiểm tra trùng
             */
             $duplicate = $this->productSimilarityService
-                ->findDuplicateProduct($productName, $products);
+                ->findDuplicateProduct($productName, $products, 85, $taxCode);
             if($duplicate['matched']){
                 /*
                 lấy mã DB

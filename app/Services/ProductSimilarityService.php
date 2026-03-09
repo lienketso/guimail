@@ -4,13 +4,28 @@ namespace App\Services;
 
 class ProductSimilarityService
 {
-    public function checkDuplicate($name, $existingProducts, $threshold = 85)
+    public function checkDuplicate($name, $existingProducts, $threshold = 85, $taxCode = null)
     {
         foreach ($existingProducts as $product) {
 
+            $productName = $product;
+            $productTaxCode = null;
+
+            if (is_array($product)) {
+                $productName = $product['product_name'] ?? ($product['name'] ?? $productName);
+                $productTaxCode = $product['tax_code'] ?? null;
+            } elseif (is_object($product)) {
+                $productName = $product->product_name ?? $product->name ?? $productName;
+                $productTaxCode = $product->tax_code ?? null;
+            }
+
+            if ($taxCode !== null && $productTaxCode !== null && $productTaxCode !== $taxCode) {
+                continue;
+            }
+
             similar_text(
                 mb_strtolower($name),
-                mb_strtolower($product),
+                mb_strtolower($productName),
                 $percent
             );
 
@@ -27,9 +42,13 @@ class ProductSimilarityService
             'duplicate' => false
         ];
     }
-    public function findDuplicateProduct($name, $products, $threshold = 85)
+    public function findDuplicateProduct($name, $products, $threshold = 85, $taxCode = null)
     {
         foreach ($products as $product) {
+
+            if ($taxCode !== null && isset($product->tax_code) && $product->tax_code !== $taxCode) {
+                continue;
+            }
 
             similar_text(
                 mb_strtolower($name),
