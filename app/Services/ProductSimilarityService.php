@@ -4,7 +4,7 @@ namespace App\Services;
 
 class ProductSimilarityService
 {
-    public function checkDuplicate($name, $existingProducts, $threshold = 85, $taxCode = null)
+    public function checkDuplicate($name, $existingProducts, $threshold = 99, $taxCode = null)
     {
         foreach ($existingProducts as $product) {
 
@@ -42,7 +42,7 @@ class ProductSimilarityService
             'duplicate' => false
         ];
     }
-    public function findDuplicateProduct($name, $products, $threshold = 85, $taxCode = null)
+    public function findDuplicateProduct($name, $products, $threshold = 99, $taxCode = null)
     {
         foreach ($products as $product) {
 

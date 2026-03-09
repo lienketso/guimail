@@ -169,7 +169,7 @@ class ToolController extends Controller
             kiểm tra trùng
             */
             $duplicate = $this->productSimilarityService
-                ->findDuplicateProduct($productName, $products, 85, $taxCode);
+                ->findDuplicateProduct($productName, $products, 99, $taxCode);
             if($duplicate['matched']){
                 /*
                 lấy mã DB

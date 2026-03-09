@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductImport;
+use App\Services\ProductSimilarityService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 
 class ProductImportController extends Controller
 {
+    public function __construct(
+        protected ProductSimilarityService $productSimilarityService
+    ) {}
+
     public function index(Request $request)
     {
         $query = ProductImport::query();
@@ -41,6 +46,21 @@ class ProductImportController extends Controller
             'price'         => 'nullable|numeric',
         ]);
 
+        $products = ProductImport::select('id', 'product_name', 'material_code', 'tax_code')->get();
+        $duplicate = $this->productSimilarityService->findDuplicateProduct(
+            $data['product_name'],
+            $products,
+            99,
+            $data['tax_code']
+        );
+
+        if ($duplicate['matched']) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['product_name' => 'Sản phẩm trùng hoặc tương tự đã tồn tại cho MST này (độ tương đồng: ' . round($duplicate['similarity'], 1) . '%).']);
+        }
+
         ProductImport::create($data);
 
         return redirect()
@@ -66,6 +86,23 @@ class ProductImportController extends Controller
             'unit'          => 'nullable|string|max:255',
             'price'         => 'nullable|numeric',
         ]);
+
+        $products = ProductImport::where('id', '!=', $product->id)
+            ->select('id', 'product_name', 'material_code', 'tax_code')
+            ->get();
+        $duplicate = $this->productSimilarityService->findDuplicateProduct(
+            $data['product_name'],
+            $products,
+            99,
+            $data['tax_code']
+        );
+
+        if ($duplicate['matched']) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['product_name' => 'Sản phẩm trùng hoặc tương tự đã tồn tại cho MST này (độ tương đồng: ' . round($duplicate['similarity'], 1) . '%).']);
+        }
 
         $product->update($data);
 
@@ -95,9 +132,11 @@ class ProductImportController extends Controller
         $rows = $data[0] ?? [];
         $errors = [];
 
+        $products = ProductImport::select('id', 'product_name', 'material_code', 'tax_code', 'unit', 'price')->get();
+
         foreach ($rows as $index => $row) {
             // Bỏ qua dòng tiêu đề nếu đúng header mẫu
-            if ($index === 0 && ($row[0] === 'Mã số thuế' || $row[1] === 'Mã vật tư')) {
+            if ($index === 0 && (($row[0] ?? '') === 'Mã số thuế' || ($row[1] ?? '') === 'Mã VT')) {
                 continue;
             }
 
@@ -116,15 +155,35 @@ class ProductImportController extends Controller
                 continue;
             }
 
-            ProductImport::updateOrCreate(
-                ['material_code' => $row[1]],
-                [
-                    'tax_code'     => $row[0],
-                    'product_name' => $row[2],
-                    'unit'         => $row[3] ?? null,
-                    'price'        => $row[4] ?? null,
-                ]
+            $taxCode = $row[0];
+            $productName = trim($row[2] ?? '');
+
+            $duplicate = $this->productSimilarityService->findDuplicateProduct(
+                $productName,
+                $products,
+                99,
+                $taxCode
             );
+
+            if ($duplicate['matched']) {
+                // Trùng: cập nhật bản ghi đã có (unit, price) thay vì thêm mới
+                $existing = $duplicate['product'];
+                $existing->update([
+                    'unit'  => $row[3] ?? $existing->unit,
+                    'price' => parsePrice($row[4] ?? null) ?? $existing->price,
+                ]);
+                continue;
+            }
+
+            // Không trùng: thêm mới và đẩy vào danh sách để các dòng sau so trùng
+            $newProduct = ProductImport::create([
+                'tax_code'     => $taxCode,
+                'material_code'=> $row[1],
+                'product_name' => $productName,
+                'unit'         => $row[3] ?? null,
+                'price'        => parsePrice($row[4] ?? null),
+            ]);
+            $products->push($newProduct);
         }
 
         if (count($errors)) {
