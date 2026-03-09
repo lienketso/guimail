@@ -1,4 +1,4 @@
-<?php 
+<?php
 use Illuminate\Support\Str;
 
 if (! function_exists('str_slug')) {
@@ -28,4 +28,45 @@ if (! function_exists('str_slug')) {
     {
         return convert_vi_to_en(Str::slug($title, $separator, $language));
     }
+}
+
+function normalize_excel_header($value): string
+{
+    $value = (string) $value;
+    $value = trim($value);
+    $value = mb_strtolower($value, 'UTF-8');
+
+    if (function_exists('convert_vi_to_en')) {
+        $value = convert_vi_to_en($value);
+    }
+
+    // Chuẩn hoá dấu câu/ký tự phân cách thành khoảng trắng để match ổn định
+    $value = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $value);
+    $value = preg_replace('/\s+/u', ' ', $value);
+
+    return trim($value);
+}
+
+function findColumnIndex(array $headerMap, array $keywords): ?int
+{
+    foreach ($headerMap as $header => $index) {
+        $normalizedHeader = normalize_excel_header($header);
+
+        foreach ($keywords as $keyword) {
+            $normalizedKeyword = normalize_excel_header($keyword);
+
+            if ($normalizedKeyword !== '' && str_contains($normalizedHeader, $normalizedKeyword)) {
+                return $index;
+            }
+        }
+    }
+
+    return null;
+}
+
+function parsePrice($price)
+{
+    if (!$price) return null;
+
+    return floatval(str_replace(',', '', $price));
 }

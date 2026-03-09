@@ -20,6 +20,7 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ProductImportController;
 
 Route::get('/', [FrontendController::class, 'home'])->name('frontend.home');
 
@@ -106,5 +107,19 @@ Route::middleware('auth')->group(function () {
     Route::post('task/update-status', [TaskController::class, 'updateStatus'])->name('admin.task.update-status');
     Route::post('tasks/update-assignee', [TaskController::class, 'updateAssignee'])->name('admin.task.update-assignee');
     Route::get('tasks/{id}',[TaskController::class,'destroy'])->name('admin.task.destroy');
-
+    //tools
+    Route::get('tools/render-file',[\App\Http\Controllers\ToolController::class,'renderFile'])
+        ->name('tools.render-file');
+    Route::post('products/imports',[\App\Http\Controllers\ToolController::class,'import'])
+        ->name('product.import');
+    Route::post('products/export',[\App\Http\Controllers\ToolController::class,'export'])
+        ->name('product.export');
+    // products manage
+    Route::get('/products', [ProductImportController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [ProductImportController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductImportController::class, 'store'])->name('products.store');
+    Route::post('/products/import', [ProductImportController::class, 'import'])->name('products.import');
+    Route::get('/products/{id}/edit', [ProductImportController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{id}', [ProductImportController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}', [ProductImportController::class, 'destroy'])->name('products.destroy');
 });

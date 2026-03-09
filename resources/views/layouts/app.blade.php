@@ -51,7 +51,7 @@
                 </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.task.index.get') ? 'active' : '' }}"
-                           href="{{ route('admin.task.index.get') }}">Quản lý công việc 
+                           href="{{ route('admin.task.index.get') }}">Quản lý công việc
                            @php
                                $pendingCount = \App\Http\Controllers\TaskController::getPendingTaskCount();
                            @endphp
@@ -59,6 +59,15 @@
                                <span class="count-task">{{ $pendingCount }}</span>
                            @endif
                         </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('tools.*') ? 'active' : '' }}" href="{{ route('categories.index') }}" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Công cụ
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="toolDropdown">
+                            <li><a class="dropdown-item" href="{{ route('tools.render-file') }}">Xuất file</a></li>
+                            <li><a class="dropdown-item" href="{{ route('products.index') }}">Quản lý sản phẩm</a></li>
+                        </ul>
                     </li>
             </ul>
             <span class="navbar-text me-3">
