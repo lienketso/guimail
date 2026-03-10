@@ -373,6 +373,33 @@
             </div>
         </div>
 
+        <!-- HƯỚNG DẪN SỬ DỤNG -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-info-circle"></i> Hướng dẫn sử dụng công cụ
+            </div>
+            <div class="card-body">
+                <ol class="mb-0 ps-3">
+                    <li class="mb-2">
+                        <strong>Import file Excel</strong><br>
+                        Chọn file Excel (định dạng .xlsx hoặc .xls) có chứa dữ liệu sản phẩm, sau đó bấm <strong>Import</strong>. Hệ thống sẽ đọc dòng tiêu đề và danh sách cột trong file.
+                    </li>
+                    <li class="mb-2">
+                        <strong>So sánh sản phẩm trùng (nếu có)</strong><br>
+                        Nếu file có sản phẩm trùng hoặc tương tự với dữ liệu trong hệ thống (cùng MST), bảng so sánh sẽ hiển thị. Bạn chọn <strong>Dùng Excel</strong> hoặc <strong>Dùng HT</strong> (hệ thống) cho từng dòng. Mặc định chọn Dùng HT. Cột <strong>Tỉ lệ trùng</strong> thể hiện độ tương đồng giữa tên sản phẩm.
+                    </li>
+                    <li class="mb-2">
+                        <strong>Chọn cột để export</strong><br>
+                        Ở mục <strong>Tùy chọn Export</strong>: từ <strong>Danh sách cột dữ liệu</strong>, bấm <strong>Thêm cột</strong> để đưa cột sang vùng <strong>Cột sẽ export</strong>. Có thể kéo thả để sắp xếp thứ tự cột. Chọn tối thiểu 1 cột.
+                    </li>
+                    <li class="mb-2">
+                        <strong>Export Excel</strong><br>
+                        Bấm <strong>Export Excel</strong> để tải file kết quả. Dữ liệu sẽ được xử lý theo lựa chọn so sánh (Excel/HT), sinh mã vật tư cho sản phẩm mới và ghi vào hệ thống.
+                    </li>
+                </ol>
+            </div>
+        </div>
+
     </div>
 
 @endsection
