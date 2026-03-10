@@ -29,26 +29,96 @@ class ToolController extends Controller
             'excel_file' => 'required|mimes:xlsx,xls'
         ]);
         try {
-            $request->validate([
-                'excel_file' => 'required|mimes:xlsx,xls'
-            ]);
-
             $file = $request->file('excel_file');
-
             $path = $file->store('temp_excel');
 
             $import = new \App\Imports\HeaderImport();
             Excel::import($import, $file);
+            $headers = $import->header;
+
+            // Đọc lại toàn bộ file từ storage để lấy data rows và check trùng
+            $allRows = [];
+            $fullPath = Storage::disk('local')->path($path);
+            if (is_file($fullPath)) {
+                $loaded = Excel::toArray([], $fullPath);
+                $allRows = $loaded[0] ?? [];
+            }
+            if (empty($allRows)) {
+                $loaded = Excel::toArray([], $path, 'local');
+                $allRows = $loaded[0] ?? [];
+            }
+            $headerRow = $allRows[0] ?? [];
+            $dataRows = array_slice($allRows, 1);
+
+            $headerMap = [];
+            foreach ($headerRow as $idx => $h) {
+                $key = normalize_excel_header($h ?? '');
+                $headerMap[$key !== '' ? $key : ('__col_' . $idx)] = $idx;
+            }
+
+            $productNameIndex = findColumnIndex($headerMap, ['Tên hàng hóa', ' dịch vụ', 'Tên sản phẩm', 'Tên hàng', 'Product name', 'product name']);
+            $taxCodeIndex     = findColumnIndex($headerMap, ['MST người bán', 'Tên MST người bán', 'MST', 'Mã số thuế', 'Ma so thue', 'Tax code']);
+            $unitIndex        = findColumnIndex($headerMap, ['Đơn vị tính', 'Unit']);
+            $priceIndex       = findColumnIndex($headerMap, ['Đơn giá', 'Price']);
+            if ($productNameIndex === null) {
+                $productNameIndex = 0;
+            }
+            if ($taxCodeIndex === null) {
+                $taxCodeIndex = 1;
+            }
+
+            $products = ProductImport::select('id', 'product_name', 'material_code', 'tax_code', 'unit', 'price')->get();
+            $duplicates = [];
+
+            foreach ($dataRows as $dataIndex => $row) {
+                $productName = trim((string) ($row[$productNameIndex] ?? ''));
+                if ($productName === '') {
+                    continue;
+                }
+                $taxCodeRaw = $row[$taxCodeIndex] ?? null;
+                $taxCode = $taxCodeRaw !== null && $taxCodeRaw !== '' ? (string) $taxCodeRaw : null;
+                $unit   = $row[$unitIndex] ?? null;
+                $price  = parsePrice($row[$priceIndex] ?? null);
+
+                $duplicate = $this->productSimilarityService->findDuplicateProduct(
+                    $productName,
+                    $products,
+                    90,
+                    $taxCode
+                );
+
+                if ($duplicate['matched']) {
+                    $db = $duplicate['product'];
+                    $duplicates[] = [
+                        'row_index' => $dataIndex,
+                        'similarity' => round($duplicate['similarity'], 1),
+                        'excel' => [
+                            'product_name' => $productName,
+                            'tax_code'     => $taxCode,
+                            'unit'         => $unit,
+                            'price'        => $price,
+                        ],
+                        'db' => [
+                            'id'            => $db->id,
+                            'product_name'  => $db->product_name,
+                            'material_code' => $db->material_code,
+                            'tax_code'      => $db->tax_code,
+                            'unit'          => $db->unit,
+                            'price'         => $db->price,
+                        ],
+                    ];
+                }
+            }
 
             return response()->json([
-                'status' => true,
-                'headers' => $import->header,
-                'file_path' => $path,
+                'status'     => true,
+                'headers'    => $headers,
+                'file_path'  => $path,
+                'duplicates' => $duplicates,
             ]);
-        }catch (\Exception $e){
-            return response()->json(['error'=>$e->getMessage()]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
         }
-
     }
 
 
@@ -96,6 +166,7 @@ class ToolController extends Controller
 
         $headers = array_map(fn($h) => trim($h), $rows[0]);
         unset($rows[0]);
+        $rows = array_values($rows); // index 0,1,2... để khớp duplicate_choices.row_index
 
         /*
         |--------------------------------------------------------------------------
@@ -156,26 +227,58 @@ class ToolController extends Controller
         $newProducts = [];
         $filteredData = [];
 
-        foreach ($rows as $row) {
+        $duplicateChoices = [];
+        foreach ($request->input('duplicate_choices', []) as $c) {
+            $duplicateChoices[(int) ($c['row_index'] ?? -1)] = $c;
+        }
+
+        foreach ($rows as $dataRowIndex => $row) {
 
             $productName = trim($row[$productNameIndex] ?? '');
             $taxCode = $row[$taxCodeIndex] ?? null;
             $unit = $row[$unitIndex] ?? null;
             $price = parsePrice($row[$priceIndex] ?? null);
-            if(!$productName){
+            if (!$productName) {
                 continue;
             }
+
+            // Nếu user đã chọn "Dùng DB" cho dòng trùng → dùng dữ liệu từ DB để export
+            if (isset($duplicateChoices[$dataRowIndex]) && ($duplicateChoices[$dataRowIndex]['use'] ?? '') === 'db') {
+                $dbId = (int) ($duplicateChoices[$dataRowIndex]['db_id'] ?? 0);
+                $dbProduct = $dbId ? ProductImport::find($dbId) : null;
+                if ($dbProduct) {
+                    $virtualRow = $row;
+                    $virtualRow[$productNameIndex] = $dbProduct->product_name;
+                    $virtualRow[$taxCodeIndex] = $dbProduct->tax_code;
+                    if ($unitIndex !== null) {
+                        $virtualRow[$unitIndex] = $dbProduct->unit;
+                    }
+                    if ($priceIndex !== null) {
+                        $virtualRow[$priceIndex] = $dbProduct->price;
+                    }
+                    if ($materialCodeIndex !== null) {
+                        $virtualRow[$materialCodeIndex] = $dbProduct->material_code;
+                    }
+                    $newRow = [];
+                    foreach ($selectedIndexes as $idx) {
+                        $newRow[] = $virtualRow[$idx] ?? null;
+                    }
+                    $filteredData[] = $newRow;
+                    continue;
+                }
+            }
+
             /*
             kiểm tra trùng
             */
             $duplicate = $this->productSimilarityService
-                ->findDuplicateProduct($productName, $products, 99, $taxCode);
-            if($duplicate['matched']){
+                ->findDuplicateProduct($productName, $products, 90, $taxCode);
+            if ($duplicate['matched']) {
                 /*
                 lấy mã DB
                 */
                 $materialCode = $duplicate['product']->material_code;
-            }else{
+            } else {
                 /*
                 sinh mã mới
                 */

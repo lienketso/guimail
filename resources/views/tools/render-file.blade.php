@@ -39,6 +39,53 @@
 
             $("#selectedFields").disableSelection();
 
+            window.renderDuplicateSection = function(duplicates) {
+                var $body = $('#duplicateCompareBody').empty();
+                duplicates.forEach(function(item) {
+                    var rowIndex = item.row_index;
+                    var excel = item.excel || {};
+                    var db = item.db || {};
+                    var choice = (window.duplicateChoices[rowIndex] && window.duplicateChoices[rowIndex].use) || 'db';
+                    var useExcel = choice === 'excel';
+                    var $tr = $('<tr data-row-index="' + rowIndex + '"></tr>');
+                    $tr.append('<td class="align-top">Dòng ' + (rowIndex + 2) + '</td>');
+                    $tr.append(
+                        '<td class="align-top">' +
+                        '<strong>' + (excel.product_name || '') + '</strong><br>' +
+                        '<small>MST: ' + (excel.tax_code || '') + '</small><br>' +
+                        '<small>Đơn vị: ' + (excel.unit || '') + ' | Giá: ' + (excel.price != null ? Number(excel.price).toLocaleString('vi-VN') : '') + '</small>' +
+                        '</td>'
+                    );
+                    $tr.append(
+                        '<td class="align-top">' +
+                        '<strong>' + (db.product_name || '') + '</strong><br>' +
+                        '<small>Mã VT: ' + (db.material_code || '') + ' | MST: ' + (db.tax_code || '') + '</small><br>' +
+                        '<small>Đơn vị: ' + (db.unit || '') + ' | Giá: ' + (db.price != null ? Number(db.price).toLocaleString('vi-VN') : '') + '</small>' +
+                        '</td>'
+                    );
+                    var similarity = item.similarity != null ? Number(item.similarity) : 0;
+                    $tr.append(
+                        '<td class="align-top text-center">' +
+                        '<span class="badge bg-' + (similarity >= 90 ? 'danger' : similarity >= 80 ? 'warning' : 'secondary') + '">' + similarity.toFixed(1) + '%</span>' +
+                        '</td>'
+                    );
+                    $tr.append(
+                        '<td class="align-top">' +
+                        '<div class="form-check"><input type="radio" class="form-check-input use-source" name="dup_' + rowIndex + '" value="excel" data-row="' + rowIndex + '" ' + (useExcel ? 'checked' : '') + '><label class="form-check-label">Dùng Excel</label></div>' +
+                        '<div class="form-check"><input type="radio" class="form-check-input use-source" name="dup_' + rowIndex + '" value="db" data-row="' + rowIndex + '" data-db-id="' + (db.id || '') + '" ' + (!useExcel ? 'checked' : '') + '><label class="form-check-label">Dùng HT</label></div>' +
+                        '</td>'
+                    );
+                    $body.append($tr);
+                    window.duplicateChoices[rowIndex] = { use: useExcel ? 'excel' : 'db', db_id: useExcel ? null : (db.id || null) };
+                });
+                $body.off('change', '.use-source').on('change', '.use-source', function() {
+                    var row = $(this).data('row');
+                    var use = $(this).val();
+                    var dbId = $(this).data('db-id') || null;
+                    window.duplicateChoices[row] = { use: use, db_id: use === 'db' ? dbId : null };
+                });
+            };
+
             //import
 
             $('#formImport').submit(function(e){
@@ -66,6 +113,17 @@
 
                             uploadedFilePath = res.file_path;
                             $('#hiddenFilePath').val(res.file_path);
+
+                            window.duplicateChoices = {};
+                            var duplicates = Array.isArray(res.duplicates) ? res.duplicates : [];
+                            if (duplicates.length > 0) {
+                                window.duplicatesList = duplicates;
+                                renderDuplicateSection(duplicates);
+                                $('#duplicateSection').show().fadeIn();
+                            } else {
+                                window.duplicatesList = [];
+                                $('#duplicateSection').hide().find('#duplicateCompareBody').empty();
+                            }
 
                             $('#exportSection').fadeIn();
                             $('#availableFields').html('');
@@ -127,13 +185,26 @@
                 btn.prop('disabled', true)
                     .html('<span class="spinner-border spinner-border-sm"></span> Đang export...');
 
+                var duplicateChoicesPayload = [];
+                if (window.duplicateChoices && typeof window.duplicateChoices === 'object') {
+                    Object.keys(window.duplicateChoices).forEach(function(rowIndex) {
+                        var c = window.duplicateChoices[rowIndex];
+                        duplicateChoicesPayload.push({
+                            row_index: parseInt(rowIndex, 10),
+                            use: c.use || 'excel',
+                            db_id: c.db_id || null
+                        });
+                    });
+                }
+
                 $.ajax({
                     url: "{{ route('product.export') }}",
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
                         fields: fields,
-                        file_path: filePath
+                        file_path: filePath,
+                        duplicate_choices: duplicateChoicesPayload
                     },
                     xhrFields: {
                         responseType: 'blob'
@@ -213,6 +284,30 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- SO SÁNH SẢN PHẨM TRÙNG -->
+        <div id="duplicateSection" class="card shadow-sm mb-4" style="display:none;">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-arrow-left-right"></i> So sánh sản phẩm trùng (chọn dùng bản Excel hay hệ thống)
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Các dòng dưới đây trùng hoặc tương tự với sản phẩm trong hệ thống (cùng MST). Chọn nguồn dữ liệu để dùng khi export.</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th>Dòng</th>
+                                <th>Trong file Excel</th>
+                                <th>Trong hệ thống</th>
+                                <th>Tỉ lệ trùng</th>
+                                <th>Chọn dùng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplicateCompareBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

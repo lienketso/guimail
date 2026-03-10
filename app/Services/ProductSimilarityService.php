@@ -46,7 +46,7 @@ class ProductSimilarityService
     {
         foreach ($products as $product) {
 
-            if ($taxCode !== null && isset($product->tax_code) && $product->tax_code !== $taxCode) {
+            if ($taxCode !== null && isset($product->tax_code) && (string) $product->tax_code !== (string) $taxCode) {
                 continue;
             }
 
