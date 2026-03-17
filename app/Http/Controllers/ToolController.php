@@ -29,6 +29,13 @@ class ToolController extends Controller
             'excel_file' => 'required|mimes:xlsx,xls'
         ]);
         try {
+            // Đảm bảo thư mục tạm nằm trong open_basedir và được dùng làm sys_temp_dir
+            $tempDir = storage_path('framework/laravel-excel');
+            if (!is_dir($tempDir)) {
+                @mkdir($tempDir, 0775, true);
+            }
+            @ini_set('sys_temp_dir', $tempDir);
+
             $file = $request->file('excel_file');
             $path = $file->store('temp_excel');
 
@@ -150,6 +157,13 @@ class ToolController extends Controller
             'fields' => 'required|array',
             'file_path' => 'required'
         ]);
+
+        // Đảm bảo PhpSpreadsheet sử dụng thư mục tạm hợp lệ
+        $tempDir = storage_path('framework/laravel-excel');
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0775, true);
+        }
+        @ini_set('sys_temp_dir', $tempDir);
 
         $filePath = $request->file_path;
 
