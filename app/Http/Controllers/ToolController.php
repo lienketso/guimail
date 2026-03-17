@@ -44,6 +44,8 @@ class ToolController extends Controller
             $headers = $import->header;
 
             // Đọc lại toàn bộ file từ storage để lấy data rows và check trùng
+            // LƯU Ý: một số host shared + open_basedir rất nhạy với file lớn,
+            // nên chỉ bật check trùng cho file vừa phải để tránh lỗi nội bộ PhpSpreadsheet.
             $allRows = [];
             $fullPath = Storage::disk('local')->path($path);
             if (is_file($fullPath)) {
@@ -54,8 +56,20 @@ class ToolController extends Controller
                 $loaded = Excel::toArray([], $path, 'local');
                 $allRows = $loaded[0] ?? [];
             }
+
             $headerRow = $allRows[0] ?? [];
             $dataRows = array_slice($allRows, 1);
+
+            // Nếu file quá lớn, bỏ qua bước check trùng để tránh lỗi môi trường host
+            if (count($dataRows) > 3000) {
+                return response()->json([
+                    'status'     => true,
+                    'headers'    => $headers,
+                    'file_path'  => $path,
+                    'duplicates' => [], // không chạy so trùng cho file lớn
+                    'note'       => 'File có nhiều dòng, hệ thống bỏ qua bước so sánh sản phẩm trùng để tránh lỗi máy chủ.',
+                ]);
+            }
 
             $headerMap = [];
             foreach ($headerRow as $idx => $h) {
