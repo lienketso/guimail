@@ -60,17 +60,6 @@ class ToolController extends Controller
             $headerRow = $allRows[0] ?? [];
             $dataRows = array_slice($allRows, 1);
 
-            // Nếu file quá lớn, bỏ qua bước check trùng để tránh lỗi môi trường host
-            if (count($dataRows) > 3000) {
-                return response()->json([
-                    'status'     => true,
-                    'headers'    => $headers,
-                    'file_path'  => $path,
-                    'duplicates' => [], // không chạy so trùng cho file lớn
-                    'note'       => 'File có nhiều dòng, hệ thống bỏ qua bước so sánh sản phẩm trùng để tránh lỗi máy chủ.',
-                ]);
-            }
-
             $headerMap = [];
             foreach ($headerRow as $idx => $h) {
                 $key = normalize_excel_header($h ?? '');

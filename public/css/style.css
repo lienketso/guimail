@@ -593,6 +593,9 @@ a.file-link:hover {
 .card {
     position: relative;
 }
+#duplicateCompareBody td{
+    font-size: 12px;
+}
 /* Responsive cho màn hình nhỏ */
 @media (max-width: 768px) {
     .detailed-stats-table {

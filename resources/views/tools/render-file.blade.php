@@ -39,9 +39,22 @@
 
             $("#selectedFields").disableSelection();
 
-            window.renderDuplicateSection = function(duplicates) {
+            window.duplicateCurrentPage = 1;
+            window.duplicatePerPage = 20;
+
+            function renderDuplicatePage() {
+                var list = window.duplicatesList || [];
+                var total = list.length;
+                var perPage = window.duplicatePerPage;
+                var totalPages = Math.max(1, Math.ceil(total / perPage));
+                var page = Math.min(Math.max(1, window.duplicateCurrentPage), totalPages);
+                window.duplicateCurrentPage = page;
+
+                var start = (page - 1) * perPage;
+                var slice = list.slice(start, start + perPage);
+
                 var $body = $('#duplicateCompareBody').empty();
-                duplicates.forEach(function(item) {
+                slice.forEach(function(item) {
                     var rowIndex = item.row_index;
                     var excel = item.excel || {};
                     var db = item.db || {};
@@ -76,7 +89,6 @@
                         '</td>'
                     );
                     $body.append($tr);
-                    window.duplicateChoices[rowIndex] = { use: useExcel ? 'excel' : 'db', db_id: useExcel ? null : (db.id || null) };
                 });
                 $body.off('change', '.use-source').on('change', '.use-source', function() {
                     var row = $(this).data('row');
@@ -84,7 +96,51 @@
                     var dbId = $(this).data('db-id') || null;
                     window.duplicateChoices[row] = { use: use, db_id: use === 'db' ? dbId : null };
                 });
+
+                var $info = $('#duplicatePaginationInfo');
+                var $nav = $('#duplicatePaginationNav');
+                $info.html('Hiển thị ' + (total === 0 ? 0 : start + 1) + ' - ' + Math.min(start + perPage, total) + ' / Tổng ' + total + ' sản phẩm trùng');
+                var navHtml = '';
+                if (totalPages > 1) {
+                    navHtml += '<ul class="pagination pagination-sm mb-0 flex-wrap">';
+                    navHtml += '<li class="page-item' + (page <= 1 ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">Trước</a></li>';
+                    var from = Math.max(1, page - 2);
+                    var to = Math.min(totalPages, page + 2);
+                    if (from > 1) navHtml += '<li class="page-item disabled"><span class="page-link">…</span></li>';
+                    for (var i = from; i <= to; i++) {
+                        navHtml += '<li class="page-item' + (i === page ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+                    }
+                    if (to < totalPages) navHtml += '<li class="page-item disabled"><span class="page-link">…</span></li>';
+                    navHtml += '<li class="page-item' + (page >= totalPages ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">Sau</a></li>';
+                    navHtml += '</ul>';
+                }
+                $nav.html(navHtml);
+            }
+
+            window.renderDuplicateSection = function(duplicates) {
+                window.duplicatesList = duplicates;
+                window.duplicateCurrentPage = 1;
+                duplicates.forEach(function(item) {
+                    var rowIndex = item.row_index;
+                    var db = item.db || {};
+                    if (!window.duplicateChoices[rowIndex]) {
+                        window.duplicateChoices[rowIndex] = { use: 'db', db_id: (db && db.id) || null };
+                    }
+                });
+                renderDuplicatePage();
+                $('#duplicatePerPage').off('change').on('change', function() {
+                    window.duplicatePerPage = parseInt($(this).val(), 10);
+                    window.duplicateCurrentPage = 1;
+                    renderDuplicatePage();
+                });
             };
+
+            $(document).off('click', '#duplicatePaginationNav a.page-link[data-page]').on('click', '#duplicatePaginationNav a.page-link[data-page]', function(e) {
+                e.preventDefault();
+                if ($(this).closest('.page-item').hasClass('disabled')) return;
+                window.duplicateCurrentPage = parseInt($(this).data('page'), 10);
+                renderDuplicatePage();
+            });
 
             //import
 
@@ -307,6 +363,19 @@
                         </thead>
                         <tbody id="duplicateCompareBody"></tbody>
                     </table>
+                </div>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+                    <span id="duplicatePaginationInfo" class="text-muted small"></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-muted mb-0">Số dòng/trang:</label>
+                        <select id="duplicatePerPage" class="form-select form-select-sm" style="width:auto;">
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                        <div id="duplicatePaginationNav"></div>
+                    </div>
                 </div>
             </div>
         </div>
